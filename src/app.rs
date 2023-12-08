@@ -16,19 +16,6 @@
  */
 
 
-use tracing::{
-      debug, 
-      error, 
-      info, 
-      warn, 
-      trace, 
-      span, 
-      Level, 
-      instrument, 
-      debug_span,
-      error_span,
-      trace_span
-};
 use color_eyre::{
       Section, 
       eyre::{
@@ -39,41 +26,8 @@ use color_eyre::{
       }
 };
 
-pub mod logging;
-use logging::start_tracing;
-
-pub mod tui;
-use tui::Tui;
-
-pub mod hooks;
-use hooks::eyre_term_exit_hook;
-
-pub mod app;
-use app::App;
-
-pub mod event;
-
-pub mod update;
 
 
-const APPLICATION_DIR_NAME: &str = "ratatui-selector";
-const LOG_DIR_NAME: &str = "logs";
-
-
-fn main() -> Result<()> {
-      eyre_term_exit_hook()?;
-      
-      let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
-
-      let mut term = Tui::new_with_term()?;
-      term.enter()?;
-      let main_span = trace_span!("Main Program").entered();
-
-
-
-
-
-      main_span.exit();
-      term.exit()?;
-      Ok(())
+pub struct App {
+      exit: bool
 }
