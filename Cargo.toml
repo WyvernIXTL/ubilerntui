@@ -1,0 +1,19 @@
+[package]
+name = "ratatui-selector"
+version = "0.1.0"
+edition = "2021"
+authors = ["Adam McKellar"]
+description = "This is a TUI which has a simple selector. It is a small first TUI project of mine"
+license = "GPL-3.0-or-later"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tracing = {version = "0.1", features = ["release_max_level_info"]}
+tracing-subscriber = {version = "0.3", features = ["json", "env-filter"]}
+color-eyre = "0.6.2"
+directories = "5.0.1"
+tracing-error = "0.2.0"
+chrono = "0.4.31"
+crossterm = "0.27.0"
+ratatui = "0.24.0"
