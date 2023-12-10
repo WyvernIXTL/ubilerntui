@@ -57,6 +57,8 @@ pub mod event;
 
 pub mod update;
 
+pub mod ui;
+
 
 const APPLICATION_DIR_NAME: &str = "ratatui-selector";
 const LOG_DIR_NAME: &str = "logs";
@@ -71,12 +73,24 @@ fn main() -> Result<()> {
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
+      let term_span  = trace_span!("Entered alternative screen mode and raw mode.").entered();
+
+      let mut app = App::new();
+      let event_handler = event::InputEventHandler::new(120);
+
       let main_span = trace_span!("Main Loop").entered();
-
-
-
-
+      loop {
+            while let Ok(event) = event_handler.receiver.try_recv() {
+                  update::update(event, &mut app)?;
+            }
+            if app.get_exit() {
+                  break;
+            }
+            term.draw(app)?;
+      }
       main_span.exit();
+
+      term_span.exit();
       term.exit()?;
       Ok(())
 }

@@ -46,7 +46,11 @@ use color_eyre::{
             Result,
             WrapErr
       }
-  };
+};
+
+use crate::ui;
+use crate::app;
+
 
 pub struct Tui {
       terminal: Terminal<CrosstermBackend<Stderr>>
@@ -86,6 +90,16 @@ impl Tui {
                   .wrap_err("Failed showing cursor.")?;
 
             Ok(())
+      }
+
+      pub fn draw(&mut self, app: app::App) -> Result<()> {
+            self.terminal.draw(|frame| ui::draw(frame, app))?;
+            Ok(())
+      }
+
+      pub fn get_size(self) -> Result<(u16, u16)> {
+            let rect = self.terminal.size()?;
+            Ok((rect.right()-rect.left(), rect.bottom()-rect.top()))
       }
 }
 

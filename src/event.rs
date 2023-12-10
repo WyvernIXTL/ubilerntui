@@ -16,6 +16,8 @@
  */
 
 
+use tracing::{trace_span, trace, debug_span};
+
 use color_eyre::{
       Section, 
       eyre::{
@@ -25,3 +27,71 @@ use color_eyre::{
             bail
       }
 };
+
+use crossterm::event::{self, KeyEvent, MouseEvent, Event};
+
+use std::{
+      sync::mpsc::{self, Receiver, Sender},
+      thread,
+      time::{Duration, Instant},
+};
+
+
+pub enum EventType {
+    Key(KeyEvent),
+    Mouse(MouseEvent),
+    Resize(u16, u16)
+}
+
+pub struct  InputEventHandler {
+      pub sender: Sender<EventType>, 
+      pub receiver: Receiver<EventType>,
+      handle: thread::JoinHandle<()>
+}
+
+impl InputEventHandler {
+      pub fn new(fps: u64) -> Self {
+            let frametime = 1000 / fps;
+            let (sender, receiver) = mpsc::channel::<EventType>();
+
+            let handle = {
+                  let sender = sender.clone();
+
+                  thread::spawn(move || {
+                        let _trace_guard = debug_span!("Key, mouse and resize event polling loop.", frametime).entered();
+                        loop {
+                              if event::poll(Duration::from_millis(frametime)).expect("Unable to poll for crossterm event.") {
+                                    match event::read().expect("Unable to read crossterm event.") {
+                                          Event::Resize(w, h) => {
+                                                trace!(%w, %h, "Resize event triggered.");
+                                                sender.send(EventType::Resize(w, h))
+                                          },
+                                          Event::Key(key_event) => {
+                                                if key_event.kind == event::KeyEventKind::Press {
+                                                      trace!(?key_event);
+                                                      sender.send(EventType::Key(key_event))
+                                                } else {
+                                                    Ok(())
+                                                }
+                                          },
+                                          Event::Mouse(mouse_event) => {
+                                                trace!(?mouse_event);
+                                                sender.send(EventType::Mouse(mouse_event))
+                                          },
+                                          unknown_event => {
+                                                trace!(?unknown_event, "Unknown event matched in even handler."); 
+                                                Ok(()) 
+                                          },
+                                    }.expect("Failed sending in event channel.");
+                              }
+                        }
+                  })
+            };
+
+            Self { sender: sender, receiver: receiver, handle: handle }
+      }
+
+      pub fn get(&mut self) -> Result<EventType> {
+            Ok(self.receiver.recv()?)
+      }
+}

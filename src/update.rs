@@ -25,3 +25,24 @@ use color_eyre::{
             bail
       }
 };
+
+use crossterm::event::KeyCode::{self, Char};
+
+use crate::app::App;
+use crate::event::EventType;
+
+
+
+pub fn update(event: EventType, app: &mut App) -> Result<()> {
+      match event {
+            EventType::Resize(w, h) => {},
+            EventType::Mouse(mouse_event) => {},
+            EventType::Key(key_event) => match key_event.code {
+                  Char('q') | KeyCode::Esc => app.set_exit_true(),
+                  _ => {}
+            }
+            _ => {}
+      }
+
+      Ok(())
+}

@@ -16,33 +16,34 @@
  */
 
 
+
+
+use ratatui::{
+      prelude::{
+            Frame,
+            Stylize
+      },
+      widgets::Paragraph
+};
 use color_eyre::{
       Section, 
       eyre::{
+            self,
             Report,
             Result,
-            WrapErr,
-            bail
+            WrapErr
       }
 };
 
+use crate::App;
 
 
-#[derive(Default, Debug, Clone, Copy)]
-pub struct App {
-      exit: bool,
-}
-
-impl App {
-      pub fn new() -> Self {
-            Self { exit: false }
-      }
-
-      pub fn get_exit(self) -> bool {
-            self.exit
-      }
-
-      pub fn set_exit_true(&mut self) {
-            self.exit = true;
-      }
+pub fn draw(frame: &mut Frame, app: App) {
+      let area = frame.size();
+      frame.render_widget(
+            Paragraph::new("Hello Ratatui! (press 'q' to quit)")
+                  .white()
+                  .on_blue(),
+            area,
+      );
 }
