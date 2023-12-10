@@ -26,24 +26,32 @@ use color_eyre::{
             WrapErr
       }
 };
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use crate::tui::partial_exit;
 
-pub fn eyre_term_exit_hook() -> Result<()> {
+pub fn eyre_term_exit_hook(exit_alternative_mode: Arc<AtomicBool>) -> Result<()> {
       let hook_builder = color_eyre::config::HookBuilder::default();
       let (panic_hook, eyre_hook) = hook_builder.into_hooks();
 
       let panic_hook = panic_hook.into_panic_hook();
 
+      let exit_alternative_mode_info = exit_alternative_mode.clone();
       panic::set_hook(Box::new(move |panic_info| {
-            partial_exit().unwrap();
+            if exit_alternative_mode_info.load(Ordering::Relaxed) {
+                  partial_exit().unwrap();
+            }
             panic_hook(panic_info);
       }));
 
       // convert from a color_eyre EyreHook to a eyre ErrorHook
       let eyre_hook = eyre_hook.into_eyre_hook();
+      let exit_alternative_mode_error = exit_alternative_mode.clone();
       eyre::set_hook(Box::new(move |error| {
-            partial_exit().unwrap();
+            if exit_alternative_mode_error.load(Ordering::Relaxed) {
+                  partial_exit().unwrap();
+            }
             eyre_hook(error)
       }))?;
 

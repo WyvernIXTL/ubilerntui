@@ -38,6 +38,8 @@ use color_eyre::{
             bail
       }
 };
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 pub mod logging;
 use logging::start_tracing;
@@ -61,14 +63,15 @@ const LOG_DIR_NAME: &str = "logs";
 
 
 fn main() -> Result<()> {
-      eyre_term_exit_hook()?;
-      
+      let mut entered_alternative_mode = Arc::new(AtomicBool::new(false));
+      eyre_term_exit_hook(entered_alternative_mode.clone())?;
+
       let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
 
+      entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
-      let main_span = trace_span!("Main Program").entered();
-
+      let main_span = trace_span!("Main Loop").entered();
 
 
 
