@@ -21,9 +21,21 @@
 use ratatui::{
       prelude::{
             Frame,
-            Stylize
+            Stylize,
+            Layout,
+            Direction,
+            Constraint,
+            Text,
+            Style,
+            Span,
+            Rect
       },
-      widgets::Paragraph
+      widgets::{
+            Paragraph,
+            Block,
+            BorderType,
+            Borders
+      }
 };
 use color_eyre::{
       Section, 
@@ -40,10 +52,86 @@ use crate::App;
 
 pub fn draw(frame: &mut Frame, app: App) {
       let area = frame.size();
+
+
+      let chunks = Layout::default()
+      .direction(Direction::Vertical)
+      .constraints([
+            Constraint::Length(3),
+            Constraint::Min(1),
+            Constraint::Length(3),
+      ])
+      .split(area);
+
+
+      let border_block = Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded);
+            
+      let title = Paragraph::new(
+            Text::styled(
+                  "Question and Answer List", 
+                  Style::default()
+            )
+      ).block(border_block.clone());
+
+      frame.render_widget(title, chunks[0]);
+
+
+      let bottom_help_bar_text = vec!["(q)/(esc) quit", "(w) go up", "(s) go down", "(e) select"];
+
+      render_bottom_help_bar(frame, chunks[2], bottom_help_bar_text);
+
+      
+}
+
+
+pub fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: Vec<&str>) {
+      let count = u32::try_from(text.len()).unwrap();
+      let constraint_single = Constraint::Ratio(1, count);
+
+      let mut constraints: Vec<Constraint> = Vec::new();
+      for _i in 0..count {
+            constraints.push(constraint_single.clone());
+      }
+
+      let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(constraints)
+            .split(area);
+
+      let block_right_open = Block::default()
+            .border_type(BorderType::Rounded)
+            .borders(Borders::LEFT | Borders::TOP | Borders::BOTTOM);
+
+      let block_left_open = Block::default()
+            .border_type(BorderType::Rounded)
+            .borders(Borders::RIGHT | Borders::TOP | Borders::BOTTOM);
+
+      let block_left_right_open = Block::default()
+            .border_type(BorderType::Rounded)
+            .borders(Borders::TOP | Borders::BOTTOM);
+
       frame.render_widget(
-            Paragraph::new("Hello Ratatui! (press 'q' to quit)")
-                  .white()
-                  .on_blue(),
-            area,
+            Paragraph::new(
+                  Span::styled(text[0], Style::default())
+            ).block(block_right_open.clone()), 
+            chunks[0]
+      );
+
+      for i in 1..text.len()-1 {
+            frame.render_widget(
+                  Paragraph::new(
+                        Span::styled(text[i], Style::default())
+                  ).block(block_left_right_open.clone()), 
+                  chunks[i]
+            );
+      }
+
+      frame.render_widget(
+            Paragraph::new(
+                  Span::styled(text[3], Style::default())
+            ).block(block_left_open.clone()), 
+            chunks[3]
       );
 }

@@ -58,24 +58,21 @@ impl InputEventHandler {
                   let sender = sender.clone();
 
                   thread::spawn(move || {
-                        let _trace_guard = debug_span!("Key, mouse and resize event polling loop.", frametime).entered();
+                        let _trace_guard = trace_span!("Key, mouse and resize event polling loop.", frametime).entered();
                         loop {
                               if event::poll(Duration::from_millis(frametime)).expect("Unable to poll for crossterm event.") {
                                     match event::read().expect("Unable to read crossterm event.") {
                                           Event::Resize(w, h) => {
-                                                trace!(%w, %h, "Resize event triggered.");
                                                 sender.send(EventType::Resize(w, h))
                                           },
                                           Event::Key(key_event) => {
                                                 if key_event.kind == event::KeyEventKind::Press {
-                                                      trace!(?key_event);
                                                       sender.send(EventType::Key(key_event))
                                                 } else {
                                                     Ok(())
                                                 }
                                           },
                                           Event::Mouse(mouse_event) => {
-                                                trace!(?mouse_event);
                                                 sender.send(EventType::Mouse(mouse_event))
                                           },
                                           unknown_event => {

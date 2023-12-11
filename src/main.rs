@@ -65,20 +65,22 @@ const LOG_DIR_NAME: &str = "logs";
 
 
 fn main() -> Result<()> {
-      let mut entered_alternative_mode = Arc::new(AtomicBool::new(false));
+      let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
       let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
 
+
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
-      let term_span  = trace_span!("Entered alternative screen mode and raw mode.").entered();
+      trace!(id = "MSG-0001", "Entered alternative screen mode.");
+
 
       let mut app = App::new();
       let event_handler = event::InputEventHandler::new(120);
 
-      let main_span = trace_span!("Main Loop").entered();
+      let main_span = trace_span!("Main Loop", id = "MSG-0002").entered();
       loop {
             while let Ok(event) = event_handler.receiver.try_recv() {
                   update::update(event, &mut app)?;
@@ -90,7 +92,7 @@ fn main() -> Result<()> {
       }
       main_span.exit();
 
-      term_span.exit();
+
       term.exit()?;
       Ok(())
 }

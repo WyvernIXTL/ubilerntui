@@ -28,6 +28,7 @@ use color_eyre::{
 
 
 
+
 #[derive(Default, Debug, Clone, Copy)]
 pub struct App {
       exit: bool,
