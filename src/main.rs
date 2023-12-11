@@ -40,6 +40,8 @@ use color_eyre::{
 };
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::time::{Instant, Duration};
+use std::thread;
 
 pub mod logging;
 use logging::start_tracing;
@@ -62,6 +64,7 @@ pub mod ui;
 
 const APPLICATION_DIR_NAME: &str = "ratatui-selector";
 const LOG_DIR_NAME: &str = "logs";
+const FPS: u64 = 120;
 
 
 fn main() -> Result<()> {
@@ -78,9 +81,11 @@ fn main() -> Result<()> {
 
 
       let mut app = App::new();
-      let event_handler = event::InputEventHandler::new(120);
+      let event_handler = event::InputEventHandler::new(FPS);
 
       let main_span = trace_span!("Main Loop", id = "MSG-0002").entered();
+
+      let mut fps_timer = FpsTimer::new(FPS);
       loop {
             while let Ok(event) = event_handler.receiver.try_recv() {
                   update::update(event, &mut app)?;
@@ -89,10 +94,33 @@ fn main() -> Result<()> {
                   break;
             }
             term.draw(app)?;
+
+            fps_timer.timeout();
       }
       main_span.exit();
 
 
       term.exit()?;
       Ok(())
+}
+
+
+struct FpsTimer {
+      first: Instant,
+      frametime: Duration
+}
+
+impl FpsTimer {
+      fn new(fps: u64) -> Self {
+            Self { first: Instant::now(), frametime: Duration::from_nanos(1_000_000_000/fps) }
+      }
+
+      fn timeout(&mut self) {
+            let second = Instant::now();
+            let duration = second.duration_since(self.first);
+            if duration < self.frametime {
+                  let difference = self.frametime - duration;
+                  thread::sleep(difference);
+            }
+      }
 }

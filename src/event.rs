@@ -51,7 +51,7 @@ pub struct  InputEventHandler {
 
 impl InputEventHandler {
       pub fn new(fps: u64) -> Self {
-            let frametime = 1000 / fps;
+            let frametime = 1_000_000_000 / fps;
             let (sender, receiver) = mpsc::channel::<EventType>();
 
             let handle = {
@@ -60,7 +60,7 @@ impl InputEventHandler {
                   thread::spawn(move || {
                         let _trace_guard = trace_span!("Key, mouse and resize event polling loop.", frametime).entered();
                         loop {
-                              if event::poll(Duration::from_millis(frametime)).expect("Unable to poll for crossterm event.") {
+                              if event::poll(Duration::from_nanos(frametime)).expect("Unable to poll for crossterm event.") {
                                     match event::read().expect("Unable to read crossterm event.") {
                                           Event::Resize(w, h) => {
                                                 sender.send(EventType::Resize(w, h))
