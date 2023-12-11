@@ -61,6 +61,8 @@ pub mod update;
 
 pub mod ui;
 
+pub mod fpslimiter;
+
 
 const APPLICATION_DIR_NAME: &str = "ratatui-selector";
 const LOG_DIR_NAME: &str = "logs";
@@ -85,7 +87,7 @@ fn main() -> Result<()> {
 
       let main_span = trace_span!("Main Loop").entered();
 
-      let mut fps_timer = FpsTimer::new(FPS);
+      let mut fps_timer = fpslimiter::FpsTimer::new(FPS);
       loop {
             while let Ok(event) = event_handler.receiver.try_recv() {
                   update::update(event, &mut app)?;
@@ -105,23 +107,3 @@ fn main() -> Result<()> {
 }
 
 
-struct FpsTimer {
-      first: Instant,
-      frametime: Duration
-}
-
-impl FpsTimer {
-      fn new(fps: u64) -> Self {
-            Self { first: Instant::now(), frametime: Duration::from_nanos(1_000_000_000/fps) }
-      }
-
-      fn timeout(&mut self) {
-            let second = Instant::now();
-            let duration = second.duration_since(self.first);
-            if duration < self.frametime {
-                  let difference = self.frametime - duration;
-                  thread::sleep(difference);
-            }
-            self.first = Instant::now();
-      }
-}

@@ -115,9 +115,3 @@ pub fn partial_exit() -> Result<()> {
 
       Ok(())
 }
-
-pub fn partial_exit_if() -> Result<()> {
-
-
-      Ok(())
-}
