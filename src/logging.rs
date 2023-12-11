@@ -85,6 +85,8 @@ pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<(
             .json()
             .with_span_events(span_log_level)
             .with_span_list(true)
+            .with_file(true)
+            .with_line_number(true)
             .with_filter(EnvFilter::from_default_env());
       tracing_subscriber::registry().with(subscriber).with(ErrorLayer::default()).init();
 

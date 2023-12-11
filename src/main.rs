@@ -83,7 +83,7 @@ fn main() -> Result<()> {
       let mut app = App::new();
       let event_handler = event::InputEventHandler::new(FPS);
 
-      let main_span = trace_span!("Main Loop", id = "MSG-0002").entered();
+      let main_span = trace_span!("Main Loop").entered();
 
       let mut fps_timer = FpsTimer::new(FPS);
       loop {
