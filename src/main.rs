@@ -122,5 +122,6 @@ impl FpsTimer {
                   let difference = self.frametime - duration;
                   thread::sleep(difference);
             }
+            self.first = Instant::now();
       }
 }
