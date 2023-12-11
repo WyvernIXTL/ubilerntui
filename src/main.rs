@@ -44,7 +44,7 @@ use std::time::{Instant, Duration};
 use std::thread;
 
 pub mod logging;
-use logging::start_tracing;
+use logging::{start_tracing, env_var_is_set};
 
 pub mod tui;
 use tui::Tui;
@@ -73,8 +73,11 @@ fn main() -> Result<()> {
       let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
-      let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
-
+      let _tracing_guard = if let Ok(true) = env_var_is_set("RUST_LOG") {
+            start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?
+      } else {
+            ()
+      };
 
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
