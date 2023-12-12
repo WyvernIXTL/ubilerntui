@@ -26,24 +26,18 @@ use color_eyre::{
       }
 };
 
+use ratatui::widgets::ListState;
 
 
-
-#[derive(Default, Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone)]
 pub struct App {
-      exit: bool,
+      pub exit: bool,
+      pub item_list_state: ListState,
+      pub item_list: Vec::<String>
 }
 
 impl App {
       pub fn new() -> Self {
-            Self { exit: false }
-      }
-
-      pub fn get_exit(self) -> bool {
-            self.exit
-      }
-
-      pub fn set_exit_true(&mut self) {
-            self.exit = true;
+            Self { exit: false, item_list_state: ListState::default(), item_list: Vec::<String>::new()}
       }
 }

@@ -92,7 +92,7 @@ impl Tui {
             Ok(())
       }
 
-      pub fn draw(&mut self, app: app::App) -> Result<()> {
+      pub fn draw(&mut self, app: &mut app::App) -> Result<()> {
             self.terminal.draw(|frame| ui::draw(frame, app))?;
             Ok(())
       }

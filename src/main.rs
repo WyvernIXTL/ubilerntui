@@ -65,7 +65,7 @@ pub mod ui;
 pub mod fpslimiter;
 
 
-const APPLICATION_DIR_NAME: &str = "ratatui-selector";
+const APPLICATION_DIR_NAME: &str = env!("CARGO_PKG_NAME");
 const LOG_DIR_NAME: &str = "logs";
 const FPS: u64 = 120;
 
@@ -74,13 +74,13 @@ fn main() -> Result<()> {
       let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
-      let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
+      start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
 
       info!(
-            name = %option_env!("CARGO_PKG_NAME").unwrap_or("unkown"),
-            version = %option_env!("CARGO_PKG_VERSION").unwrap_or("unkown"),
-            repo = %option_env!("CARGO_PKG_REPOSITORY").unwrap_or("unkown"),
-            authors = %option_env!("CARGO_PKG_AUTHORS").unwrap_or("unkown"),
+            name = %env!("CARGO_PKG_NAME"),
+            version = %env!("CARGO_PKG_VERSION"),
+            repo = %env!("CARGO_PKG_REPOSITORY"),
+            authors = %env!("CARGO_PKG_AUTHORS"),
             os = %env::consts::OS,
             "program_and_env_info"
       );
@@ -92,6 +92,9 @@ fn main() -> Result<()> {
 
 
       let mut app = App::new();
+
+      app.item_list = vec!["bs1", "bs2", "banana"].into_iter().map(|s| s.to_string()).collect();
+
       let event_handler = event::InputEventHandler::new(FPS);
 
       let main_span = trace_span!("Main Loop").entered();
@@ -101,10 +104,10 @@ fn main() -> Result<()> {
             while let Ok(event) = event_handler.receiver.try_recv() {
                   update::update(event, &mut app)?;
             }
-            if app.get_exit() {
+            if app.exit {
                   break;
             }
-            term.draw(app)?;
+            term.draw(&mut app)?;
 
             fps_timer.timeout();
       }

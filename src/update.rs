@@ -26,6 +26,8 @@ use color_eyre::{
       }
 };
 
+use ratatui::widgets::ListState;
+
 use crossterm::event::KeyCode::{self, Char};
 
 use crate::app::App;
@@ -38,11 +40,35 @@ pub fn update(event: EventType, app: &mut App) -> Result<()> {
             EventType::Resize(w, h) => {},
             EventType::Mouse(mouse_event) => {},
             EventType::Key(key_event) => match key_event.code {
-                  Char('q') | KeyCode::Esc => app.set_exit_true(),
+                  Char('q') | KeyCode::Esc => app.exit = true,
+                  Char('w') => list_move_up(&mut app.item_list_state),
+                  Char('s') => list_move_down(&mut app.item_list_state, app.item_list.len()),
                   _ => {}
             }
-            _ => {}
       }
 
       Ok(())
+}
+
+
+fn list_move_up(list: &mut ListState) {
+      let current = list.selected().unwrap_or(0);
+      let next;
+      if current == 0 {
+            next = 0;
+      } else {
+          next = current-1;
+      }
+      list.select(Some(next));
+}
+
+fn list_move_down(list: &mut ListState, list_size: usize) {
+      let current = list.selected().unwrap_or(list_size-1);
+      let next;
+      if current < list_size-1 {
+            next = current+1;
+      } else {
+          next = current;
+      }      
+      list.select(Some(next));
 }

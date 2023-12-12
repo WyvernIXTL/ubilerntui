@@ -34,8 +34,12 @@ use ratatui::{
             Paragraph,
             Block,
             BorderType,
-            Borders
-      }
+            Borders,
+            List,
+            ListItem,
+            ListState
+      },
+      style::Color
 };
 use color_eyre::{
       Section, 
@@ -50,7 +54,7 @@ use color_eyre::{
 use crate::App;
 
 
-pub fn draw(frame: &mut Frame, app: App) {
+pub fn draw(frame: &mut Frame, app: &mut App) {
       let area = frame.size();
 
 
@@ -82,7 +86,18 @@ pub fn draw(frame: &mut Frame, app: App) {
 
       render_bottom_help_bar(frame, chunks[2], bottom_help_bar_text);
 
-      
+
+      let list_items: Vec<ListItem> = app.item_list.iter().map(|f| {
+            ListItem::new(f.as_str())
+      }).collect();
+
+      let selector_list = List::new(list_items)
+            .block(border_block)
+            .style(Style::default())
+            .highlight_style(Style::default().fg(Color::Black).bg(Color::LightYellow))
+            .highlight_symbol(">>");
+
+      frame.render_stateful_widget(selector_list, chunks[1], &mut app.item_list_state);
 }
 
 
