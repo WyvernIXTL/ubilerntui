@@ -17,17 +17,17 @@
 
 
 use std::panic;
-use color_eyre::{
-      Section, 
-      eyre::{
-            self,
-            Report,
-            Result,
-            WrapErr
-      }
+use std::sync::{
+      atomic::{AtomicBool, Ordering}, 
+      Arc
 };
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+
+use color_eyre::eyre::{
+      self,
+      Result
+};
+
+use tracing::error; 
 
 use crate::tui::partial_exit;
 
@@ -39,6 +39,7 @@ pub fn eyre_term_exit_hook(exit_alternative_mode: Arc<AtomicBool>) -> Result<()>
 
       let exit_alternative_mode_info = exit_alternative_mode.clone();
       panic::set_hook(Box::new(move |panic_info| {
+            error!(%panic_info);
             if exit_alternative_mode_info.load(Ordering::Relaxed) {
                   partial_exit().unwrap();
             }
@@ -49,6 +50,7 @@ pub fn eyre_term_exit_hook(exit_alternative_mode: Arc<AtomicBool>) -> Result<()>
       let eyre_hook = eyre_hook.into_eyre_hook();
       let exit_alternative_mode_error = exit_alternative_mode.clone();
       eyre::set_hook(Box::new(move |error| {
+            error!(%error);
             if exit_alternative_mode_error.load(Ordering::Relaxed) {
                   partial_exit().unwrap();
             }

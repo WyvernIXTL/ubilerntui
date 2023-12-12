@@ -19,14 +19,13 @@
 use color_eyre::{
       eyre::WrapErr, 
       Section, 
-      eyre::Result,
-      eyre::Report
+      eyre::Result
 };
 
 use tracing_subscriber::{
       fmt, 
       prelude::*, 
-      filter::EnvFilter, 
+      filter::EnvFilter,
       fmt::format::FmtSpan
 };
 use tracing_error::ErrorLayer;
@@ -47,31 +46,16 @@ use std::io;
 const MAX_LOG_FILES: usize = 10;
 
 
-pub fn env_var_is_set(env_var: &str) -> Result<bool> {
-      match std::env::var(env_var) {
-            Ok(val) => {
-                  if val.to_lowercase() == "off" {
-                        return Ok(false);
-                  }
-            },
-            Err(val) => return match val {
-                  std::env::VarError::NotPresent => Ok(false),
-                  std::env::VarError::NotUnicode(_) => Err(Report::msg(format!("Env var is invalid: {}", val)))
-            }
-      }
-      Ok(true)
-}
-
 pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<()> {
       let log_file = create_new_logfile(log_dir_name, application_dir_name, MAX_LOG_FILES)
             .wrap_err("Failed creating a new log file.")
             .suggestion("Check permissions to write into appdata or similar folders or disable logging.")?;
 
       #[cfg(debug_assertions)]
-      let span_log_level = FmtSpan::FULL;
+      let span_log_level = FmtSpan::NONE;
 
       #[cfg(not(debug_assertions))]
-      let span_log_level = FmtSpan::ACTIVE;
+      let span_log_level = FmtSpan::NONE;
 
       let subscriber = fmt::layer()
             .with_writer(log_file)
@@ -80,7 +64,7 @@ pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<(
             .with_span_list(true)
             .with_file(true)
             .with_line_number(true)
-            .with_filter(EnvFilter::from_default_env());
+            .with_filter(EnvFilter::try_from_default_env().unwrap_or(EnvFilter::new("INFO")));
       tracing_subscriber::registry().with(subscriber).with(ErrorLayer::default()).init();
 
       Ok(())

@@ -42,9 +42,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{Instant, Duration};
 use std::thread;
+use std::env::{self, var};
 
 pub mod logging;
-use logging::{start_tracing, env_var_is_set};
+use logging::start_tracing;
 
 pub mod tui;
 use tui::Tui;
@@ -73,16 +74,21 @@ fn main() -> Result<()> {
       let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
-      let _tracing_guard = if let Ok(true) = env_var_is_set("RUST_LOG") {
-            start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?
-      } else {
-            ()
-      };
+      let _tracing_guard = start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
+
+      info!(
+            name = %option_env!("CARGO_PKG_NAME").unwrap_or("unkown"),
+            version = %option_env!("CARGO_PKG_VERSION").unwrap_or("unkown"),
+            repo = %option_env!("CARGO_PKG_REPOSITORY").unwrap_or("unkown"),
+            authors = %option_env!("CARGO_PKG_AUTHORS").unwrap_or("unkown"),
+            os = %env::consts::OS,
+            "program_and_env_info"
+      );
 
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
-      trace!(id = "MSG-0001", "Entered alternative screen mode.");
+      trace!("Entered alternative screen mode.");
 
 
       let mut app = App::new();
