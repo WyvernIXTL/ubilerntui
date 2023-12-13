@@ -39,11 +39,24 @@ pub fn update(event: EventType, app: &mut App) -> Result<()> {
       match event {
             EventType::Resize(w, h) => {},
             EventType::Mouse(mouse_event) => {},
-            EventType::Key(key_event) => match key_event.code {
-                  Char('q') | KeyCode::Esc => app.exit = true,
-                  Char('w') => list_move_up(&mut app.item_list_state),
-                  Char('s') => list_move_down(&mut app.item_list_state, app.item_list.len()),
-                  _ => {}
+            EventType::Key(key_event) => match app.question_answer.user_answer {
+                  Some(i) => match key_event.code {
+                        Char('q') | KeyCode::Esc => app.exit = true,
+                        Char('e') => {app.question_answer.user_answer = None; app.item_list_state.select(None)},
+                        _ => {}
+                  },
+                  None => match key_event.code {
+                        Char('q') | KeyCode::Esc => app.exit = true,
+                        Char('w') => list_move_up(&mut app.item_list_state),
+                        Char('s') => list_move_down(&mut app.item_list_state, app.question_answer.possible_answers.len()),
+                        Char('e') => if let Some(i) = app.item_list_state.selected() {
+                              if i < app.question_answer.possible_answers.len(){
+                                    app.question_answer.user_answer = Some(i);
+                                    app.item_list_state.select(None)
+                              }
+                        },
+                        _ => {}
+                  }
             }
       }
 

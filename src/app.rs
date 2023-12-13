@@ -29,15 +29,35 @@ use color_eyre::{
 use ratatui::widgets::ListState;
 
 
+
 #[derive(Default, Debug, Clone)]
 pub struct App {
       pub exit: bool,
       pub item_list_state: ListState,
-      pub item_list: Vec::<String>
+      pub question_answer: QuestionAnswer
 }
 
 impl App {
-      pub fn new() -> Self {
-            Self { exit: false, item_list_state: ListState::default(), item_list: Vec::<String>::new()}
+      pub fn new(question_answer: QuestionAnswer) -> Self {
+            Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer}
+      }
+}
+
+
+#[derive(Default, Debug, Clone)]
+pub struct QuestionAnswer {
+      pub question: String,
+      pub possible_answers: Vec<String>,
+      pub right_answer: usize,
+      pub user_answer: Option<usize>
+}
+
+impl QuestionAnswer {
+      pub fn new<S: ToString>(question: S, possible_answers: Vec<S>, right_answer: usize) -> Self {
+            Self { question: question.to_string(), 
+                  possible_answers: possible_answers.iter().map(|s| s.to_string()).collect(), 
+                  right_answer: right_answer, 
+                  user_answer: None
+            }
       }
 }

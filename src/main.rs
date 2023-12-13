@@ -54,7 +54,7 @@ pub mod hooks;
 use hooks::eyre_term_exit_hook;
 
 pub mod app;
-use app::App;
+use app::{App, QuestionAnswer};
 
 pub mod event;
 
@@ -90,10 +90,13 @@ fn main() -> Result<()> {
       term.enter()?;
       trace!("Entered alternative screen mode.");
 
+      let first_question = QuestionAnswer::new(
+            "What is 2 + 2 ?", 
+            vec!["4", "5", "3", "6"], 
+            1
+      );
 
-      let mut app = App::new();
-
-      app.item_list = vec!["bs1", "bs2", "banana"].into_iter().map(|s| s.to_string()).collect();
+      let mut app = App::new(first_question);
 
       let event_handler = event::InputEventHandler::new(FPS);
 
