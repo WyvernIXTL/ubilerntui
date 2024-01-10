@@ -66,6 +66,8 @@ pub mod fpslimiter;
 
 pub mod db;
 
+pub mod fs;
+
 
 const APPLICATION_DIR_NAME: &str = env!("CARGO_PKG_NAME");
 const LOG_DIR_NAME: &str = "logs";

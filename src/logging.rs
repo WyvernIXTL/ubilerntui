@@ -42,6 +42,7 @@ use std::fs::{
 use chrono::Local;
 use std::io;
 
+use crate::fs::get_local_dir;
 
 const MAX_LOG_FILES: usize = 10;
 
@@ -71,32 +72,22 @@ pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<(
 }
 
 fn create_new_logfile(log_dir_name: &str, application_dir_name: &str, max_num_log_files: usize) -> Result<File> {
-      let logs_path: PathBuf;
-
       let date = Local::now();
       let date_string = format!("{}", date.format("%Y-%m-%d--%H-%M-%S"));
 
-      if let Some(base_dir) = BaseDirs::new() {
-            let appdata_dir_buf = base_dir.data_local_dir().to_path_buf();
-            let log_dir_path_buf = appdata_dir_buf.join(application_dir_name).join(log_dir_name);
-            create_dir_all(log_dir_path_buf.clone())
-            .wrap_err(format!("Failed creating folder for logs: {:?}", log_dir_path_buf))
-            .suggestion("Check read and write rights of application for that folder.")?;
-            logs_path = log_dir_path_buf.join(date_string + ".json");
+      let log_dir_path = get_local_dir("logs")?;
+      let log_file_path = log_dir_path.join(date_string + ".json");
 
-            prune_logs(log_dir_path_buf.clone(), max_num_log_files)
-                  .wrap_err("Failed pruning logs.")?;
-      } else {
-            create_dir_all("./logs")?;
-            logs_path = PathBuf::from("./logs/".to_owned() + &date_string + ".json");
-      }
+      prune_logs(log_dir_path, max_num_log_files)
+            .wrap_err("Failed pruning logs.")?;
+            
 
       let log_file = OpenOptions::new()
             .create(true)
             .write(true)
             .truncate(true)
-            .open(logs_path.clone())
-            .wrap_err(format!("Failed opening logfile at {:?}", logs_path))
+            .open(log_file_path.clone())
+            .wrap_err(format!("Failed opening logfile at {:?}", log_file_path))
             .suggestion("Check what applications have write and read access for that folder.")?;
 
       Ok(log_file)

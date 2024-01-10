@@ -40,6 +40,7 @@ use std::env;
 use rusqlite::Connection;
 
 use crate::app::QuestionAnswer;
+use crate::fs::get_local_dir;
 
 
 pub struct DB {
@@ -47,33 +48,20 @@ pub struct DB {
 }
 
 impl DB {
-      pub fn new(db_dir_name: &str , application_dir_name: &str) -> Result<Self> {
-            let db_path;
-            if let Some(base_dir) = BaseDirs::new() {
-                  let appdata_dir_buf = base_dir.data_local_dir().to_path_buf();
-                  let db_dir_path_buf = appdata_dir_buf.join(application_dir_name).join(db_dir_name);
-                  create_dir_all(db_dir_path_buf.clone())
-                        .wrap_err(format!("Failed creating folder for db: {:?}", db_dir_path_buf))
-                        .suggestion("Check read and write rights of application for that folder.")?;
-
-                  db_path = db_dir_path_buf.join("ublerndb.db3");
-
-            } else {
-                  create_dir_all("./db")?;
-                  db_path = PathBuf::from("./db/ublerndb.db3");
-            }
+      pub fn new(db_dir_name: &str ) -> Result<Self> {
+            let db_path = get_local_dir(db_dir_name)?.join("ublerndb.db3");
 
             let db = Connection::open(db_path)?;
 
             db.execute(
                   "CREATE TABLE IF NOT EXISTS questions (
                         id                            INTEGER PRIMARY KEY,
-                        question                      TEXT,     
-                        answers_0                     TEXT,
-                        answers_1                     TEXT,
-                        answers_2                     TEXT,
-                        answers_3                     TEXT,
-                        correctly_answered            INTEGER
+                        question                      TEXT NOT NULL,     
+                        answers_0                     TEXT NOT NULL,
+                        answers_1                     TEXT NOT NULL,
+                        answers_2                     TEXT NOT NULL,
+                        answers_3                     TEXT NOT NULL,
+                        correctly_answered            INTEGER NOT NULL
                   )",
                   ()
             )?;
@@ -130,7 +118,7 @@ mod tests {
 
       #[test]
       fn test_insertion_and_read_single() -> Result<()> {
-            let db = DB::new("db_test", env!("CARGO_PKG_NAME"))?;
+            let db = DB::new("db_test")?;
             let right_answer = "0";
             let false_answers = vec!["1", "2", "3"];
             
