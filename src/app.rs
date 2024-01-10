@@ -46,6 +46,7 @@ impl App {
 
 #[derive(Default, Debug, Clone)]
 pub struct QuestionAnswer {
+      pub id: usize,
       pub question: String,
       pub possible_answers: Vec<String>,
       pub right_answer: usize,
@@ -54,8 +55,10 @@ pub struct QuestionAnswer {
 }
 
 impl QuestionAnswer {
-      pub fn new<S: ToString>(question: S, possible_answers: Vec<S>, right_answer: usize) -> Self {
-            Self { question: question.to_string(), 
+      pub fn new<S: ToString>(id: usize, question: S, possible_answers: Vec<S>, right_answer: usize) -> Self {
+            Self {
+                  id: id,
+                  question: question.to_string(), 
                   possible_answers: possible_answers.iter().map(|s| s.to_string()).collect(), 
                   right_answer: right_answer, 
                   user_answer: None,

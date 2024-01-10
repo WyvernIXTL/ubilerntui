@@ -64,6 +64,8 @@ pub mod ui;
 
 pub mod fpslimiter;
 
+pub mod db;
+
 
 const APPLICATION_DIR_NAME: &str = env!("CARGO_PKG_NAME");
 const LOG_DIR_NAME: &str = "logs";
@@ -91,6 +93,7 @@ fn main() -> Result<()> {
       trace!("Entered alternative screen mode.");
 
       let first_question = QuestionAnswer::new(
+            0,
             "What is 2 + 2 ?", 
             vec!["4", "5", "3", "6"], 
             1
