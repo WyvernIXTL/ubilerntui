@@ -49,7 +49,8 @@ pub struct QuestionAnswer {
       pub question: String,
       pub possible_answers: Vec<String>,
       pub right_answer: usize,
-      pub user_answer: Option<usize>
+      pub user_answer: Option<usize>,
+      pub count_correctly_answered: usize,
 }
 
 impl QuestionAnswer {
@@ -57,7 +58,8 @@ impl QuestionAnswer {
             Self { question: question.to_string(), 
                   possible_answers: possible_answers.iter().map(|s| s.to_string()).collect(), 
                   right_answer: right_answer, 
-                  user_answer: None
+                  user_answer: None,
+                  count_correctly_answered: 0,
             }
       }
 }

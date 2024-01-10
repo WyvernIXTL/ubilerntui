@@ -38,10 +38,13 @@ use ratatui::{
             List,
             ListItem,
             ListState,
-            HighlightSpacing
+            HighlightSpacing,
+            LineGauge,
+            Padding,
       },
       style::Color,
-      layout::Alignment
+      layout::Alignment,
+      symbols,
 };
 use color_eyre::{
       Section, 
@@ -64,34 +67,65 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             .direction(Direction::Vertical)
             .constraints([
                   Constraint::Length(3),
+                  Constraint::Length(1),
                   Constraint::Min(1),
                   Constraint::Length(3),
             ])
             .split(area);
-
-
-      let border_block = Block::default()
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded);
             
       let title = Paragraph::new(
             Text::styled(
-                  "Question and Answer List", 
+                  "UBI Lern TUI", 
                   Style::default()
             )
-      ).block(border_block.clone());
+      ).block(Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .padding(Padding::horizontal(2))
+      );
 
       frame.render_widget(title, chunks[0]);
 
+      render_question_progress(frame, chunks[1], &app.question_answer);
+
+      render_selector_list(frame, chunks[2], &app.question_answer, &mut app.item_list_state);
+
       if app.question_answer.user_answer.is_none() {
             let mut bottom_help_bar_text = vec!["(q)/(esc) quit", "(w) go up", "(s) go down", "(e) select"];
-            render_bottom_help_bar(frame, chunks[2], &mut bottom_help_bar_text);
+            render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
       } else {
             let mut bottom_help_bar_text = vec!["(q)/(esc) quit", "(e) try again"];
-            render_bottom_help_bar(frame, chunks[2], &mut bottom_help_bar_text);
+            render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
       }
 
-      render_selector_list(frame, chunks[1], &app.question_answer, &mut app.item_list_state);
+}
+
+
+pub fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
+      let progress: f64;
+      let fg_color;
+      if q.count_correctly_answered >= 3 {
+            progress = 1.0;
+            fg_color = Color::Green;
+      } else {
+            progress = (q.count_correctly_answered + 1) as f64 * 0.25;
+            if q.count_correctly_answered == 2 {
+                  fg_color = Color::Yellow;
+            } else if q.count_correctly_answered == 1 {
+                  fg_color = Color::Yellow;
+            } else {
+                fg_color = Color::Red;
+            }
+      }
+
+      let progress_bar = LineGauge::default()
+            .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
+            .label("Question Progress")
+            .ratio(progress)
+            .gauge_style(Style::new().fg(fg_color))
+            .line_set(symbols::line::THICK);
+
+      frame.render_widget(progress_bar, area);
 }
 
 
@@ -107,8 +141,12 @@ pub fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, i
             ])
             .split(area);
 
-      let question = Paragraph::new("  ".to_owned() + q.question.as_str())
-            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT | Borders::TOP));
+      let question = Paragraph::new(q.question.as_str())
+            .block(Block::default()
+            .borders(Borders::LEFT | Borders::RIGHT | Borders::TOP)
+            .border_type(BorderType::Rounded)
+            .padding(Padding::horizontal(2))
+      );
 
       frame.render_widget(question, chunks[0]);
 
@@ -129,7 +167,10 @@ pub fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, i
       }
 
       let selector_list = List::new(list_items)
-            .block(Block::default().borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM))
+            .block(Block::default()
+                  .borders(Borders::LEFT | Borders::RIGHT | Borders::BOTTOM)
+                  .border_type(BorderType::Rounded)
+            )
             .style(Style::default())
             .highlight_style(Style::default().fg(Color::Black).bg(Color::LightYellow))
             .highlight_spacing(HighlightSpacing::Always)

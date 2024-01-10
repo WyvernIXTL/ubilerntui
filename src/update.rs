@@ -52,7 +52,13 @@ pub fn update(event: EventType, app: &mut App) -> Result<()> {
                         Char('e') => if let Some(i) = app.item_list_state.selected() {
                               if i < app.question_answer.possible_answers.len(){
                                     app.question_answer.user_answer = Some(i);
-                                    app.item_list_state.select(None)
+                                    app.item_list_state.select(None);
+
+                                    if app.question_answer.right_answer == i {
+                                          app.question_answer.count_correctly_answered += 1;
+                                    } else {
+                                          app.question_answer.count_correctly_answered = 0;
+                                    }
                               }
                         },
                         _ => {}
