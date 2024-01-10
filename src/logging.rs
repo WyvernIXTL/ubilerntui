@@ -30,12 +30,10 @@ use tracing_subscriber::{
 };
 use tracing_error::ErrorLayer;
 
-use directories::BaseDirs;
 use std::path::PathBuf;
 use std::fs::{
       self,
-      read_dir, 
-      create_dir_all, 
+      read_dir,
       OpenOptions,
       File
 };
@@ -47,8 +45,8 @@ use crate::fs::get_local_dir;
 const MAX_LOG_FILES: usize = 10;
 
 
-pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<()> {
-      let log_file = create_new_logfile(log_dir_name, application_dir_name, MAX_LOG_FILES)
+pub fn start_tracing(log_dir_name: &str) -> Result<()> {
+      let log_file = create_new_logfile(log_dir_name, MAX_LOG_FILES)
             .wrap_err("Failed creating a new log file.")
             .suggestion("Check permissions to write into appdata or similar folders or disable logging.")?;
 
@@ -71,11 +69,11 @@ pub fn start_tracing(log_dir_name: &str, application_dir_name: &str) -> Result<(
       Ok(())
 }
 
-fn create_new_logfile(log_dir_name: &str, application_dir_name: &str, max_num_log_files: usize) -> Result<File> {
+fn create_new_logfile(log_dir_name: &str, max_num_log_files: usize) -> Result<File> {
       let date = Local::now();
       let date_string = format!("{}", date.format("%Y-%m-%d--%H-%M-%S"));
 
-      let log_dir_path = get_local_dir("logs")?;
+      let log_dir_path = get_local_dir(log_dir_name)?;
       let log_file_path = log_dir_path.join(date_string + ".json");
 
       prune_logs(log_dir_path, max_num_log_files)

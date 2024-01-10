@@ -16,31 +16,21 @@
  */
 
 
-use color_eyre::{
-      Section, 
-      eyre::{
-            Report,
-            Result,
-            WrapErr,
-            bail
-      }
-};
-
-use directories::BaseDirs;
-use std::path::PathBuf;
-use std::fs::{
-      self,
-      read_dir, 
-      create_dir_all,
-};
-
 use std::env;
+use std::path::Path;
+use std::path::PathBuf;
+use std::fs::remove_file;
 
 
+use color_eyre::eyre::Result;
 use rusqlite::Connection;
+
 
 use crate::app::QuestionAnswer;
 use crate::fs::get_local_dir;
+
+
+const DB_NAME: &str = "ublerndb.sqlite3";
 
 
 pub struct DB {
@@ -49,7 +39,7 @@ pub struct DB {
 
 impl DB {
       pub fn new(db_dir_name: &str ) -> Result<Self> {
-            let db_path = get_local_dir(db_dir_name)?.join("ublerndb.db3");
+            let db_path = get_local_dir(db_dir_name)?.join(DB_NAME);
 
             let db = Connection::open(db_path)?;
 
@@ -82,31 +72,27 @@ impl DB {
       }
 
       pub fn get_random(&self) -> Result<QuestionAnswer> {
-            let (id, question, answers_0, answers_1, answers_2, answers_3, correctly_answered):
-                  (usize, String, String, String, String, String, usize) = self.db.query_row(
-                  "SELECT id, question, answers_0, answers_1, answers_2, answers_3, correctly_answered
-                  FROM questions
-                  WHERE correctly_answered < 3
-                  ORDER BY RANDOM()
-                  LIMIT 1"
-                  , (), |f| {
-                        Ok(
-                              (f.get(0)?, f.get(1)?, f.get(2)?, f.get(3)?, f.get(4)?, f.get(5)?, f.get(6)?)
-                        )
-                  }
-            )?;
-
-            let possible_answers = vec![answers_0, answers_1, answers_2, answers_3];
-
             Ok(
-                  QuestionAnswer {
-                        id,
-                        question,
-                        possible_answers,
-                        right_answer: 0,
-                        user_answer: None,
-                        count_correctly_answered: correctly_answered
-                  }
+                  self.db.query_row(
+                  "SELECT id, question, answers_0, answers_1, answers_2, answers_3, correctly_answered
+                        FROM questions
+                        WHERE correctly_answered < 3
+                        ORDER BY RANDOM()
+                        LIMIT 1"
+                        , (), |f| {
+                              let possible_answers = vec![f.get(2)?, f.get(3)?, f.get(4)?, f.get(5)?];
+                              Ok(
+                                    QuestionAnswer {
+                                          id: f.get(0)?,
+                                          question: f.get(1)?,
+                                          possible_answers,
+                                          right_answer: 0,
+                                          user_answer: None,
+                                          count_correctly_answered: f.get(6)?
+                                    }
+                              )
+                        }
+                  )?
             )
       }
 }
@@ -116,8 +102,17 @@ impl DB {
 mod tests {
       use super::*;
 
+      fn del_db_file() -> Result<()> {
+            let path = get_local_dir("db_test")?.join(DB_NAME);
+            if Path::new(&path).exists() {
+                  remove_file(path)?;
+            }
+            Ok(())
+      }
+
       #[test]
       fn test_insertion_and_read_single() -> Result<()> {
+            del_db_file()?;
             let db = DB::new("db_test")?;
             let right_answer = "0";
             let false_answers = vec!["1", "2", "3"];
@@ -131,8 +126,6 @@ mod tests {
             assert_eq!(q.possible_answers[0], "0");
             assert_eq!(q.possible_answers[1..4], false_answers);
             assert_eq!(q.question, "nan");
-
-            db.db.execute("DROP TABLE questions", ())?;
 
             Ok(())
       }

@@ -16,6 +16,9 @@
  */
 
 
+use rand::thread_rng;
+use rand::seq::SliceRandom;
+
 use color_eyre::{
       Section, 
       eyre::{
@@ -63,6 +66,18 @@ impl QuestionAnswer {
                   right_answer: right_answer, 
                   user_answer: None,
                   count_correctly_answered: 0,
+            }
+      }
+
+      pub fn scramble(&mut self) {
+            let mut nums: Vec<usize> = (0..4).collect();
+            nums.shuffle(&mut thread_rng());
+
+            for i in 0..self.possible_answers.len() {
+                  if i == self.right_answer {
+                        self.right_answer = nums[i];
+                  }
+                  self.possible_answers.swap(i, nums[i]);
             }
       }
 }

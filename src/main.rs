@@ -65,12 +65,13 @@ pub mod ui;
 pub mod fpslimiter;
 
 pub mod db;
+use db::DB;
 
 pub mod fs;
 
 
-const APPLICATION_DIR_NAME: &str = env!("CARGO_PKG_NAME");
 const LOG_DIR_NAME: &str = "logs";
+const DB_DIR_NAME: &str = "db";
 const FPS: u64 = 120;
 
 
@@ -78,7 +79,7 @@ fn main() -> Result<()> {
       let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
-      start_tracing(LOG_DIR_NAME, APPLICATION_DIR_NAME)?;
+      start_tracing(LOG_DIR_NAME)?;
 
       info!(
             name = %env!("CARGO_PKG_NAME"),
@@ -89,19 +90,21 @@ fn main() -> Result<()> {
             "program_and_env_info"
       );
 
+      let db = DB::new(DB_DIR_NAME)?;
+
+      db.db.execute("DELETE FROM questions WHERE id == 0", ())?;
+
+      db.insert(0, "What is 2 + 2 ?", "5", vec!["4", "3", "6"])?;
+
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
       trace!("Entered alternative screen mode.");
 
-      let first_question = QuestionAnswer::new(
-            0,
-            "What is 2 + 2 ?", 
-            vec!["4", "5", "3", "6"], 
-            1
-      );
+      let first_question = db.get_random()?;
 
       let mut app = App::new(first_question);
+      app.question_answer.scramble();
 
       let event_handler = event::InputEventHandler::new(FPS);
 
