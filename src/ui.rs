@@ -1,6 +1,6 @@
 /**
- * ratatui-selector
- * Copyright (C) 2023 Adam McKellar
+ * ubilerntui
+ * Copyright (C) 2024 Adam McKellar
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -91,10 +91,10 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
       render_selector_list(frame, chunks[2], &app.question_answer, &mut app.item_list_state);
 
       if app.question_answer.user_answer.is_none() {
-            let mut bottom_help_bar_text = vec!["(q)/(esc) quit", "(w) go up", "(s) go down", "(e) select"];
+            let mut bottom_help_bar_text = vec!["(q)/(esc) beenden", "(w) hoch", "(s) runter", "(e) auswählen"];
             render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
       } else {
-            let mut bottom_help_bar_text = vec!["(q)/(esc) quit", "(e) try again"];
+            let mut bottom_help_bar_text = vec!["(q)/(esc) beenden", "(e) nächste Frage"];
             render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
       }
 
@@ -120,7 +120,7 @@ pub fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswe
 
       let progress_bar = LineGauge::default()
             .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
-            .label("Question Progress")
+            .label("Fragen-Fortschritt")
             .ratio(progress)
             .gauge_style(Style::new().fg(fg_color))
             .line_set(symbols::line::THICK);

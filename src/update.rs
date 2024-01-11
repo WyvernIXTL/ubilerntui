@@ -1,6 +1,6 @@
 /**
- * ratatui-selector
- * Copyright (C) 2023 Adam McKellar
+ * ubilerntui
+ * Copyright (C) 2024 Adam McKellar
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,15 +16,7 @@
  */
 
 
-use color_eyre::{
-      Section, 
-      eyre::{
-            Report,
-            Result,
-            WrapErr,
-            bail
-      }
-};
+use color_eyre::eyre::Result;
 
 use ratatui::widgets::ListState;
 
@@ -42,14 +34,14 @@ pub fn update(event: EventType, app: &mut App) -> Result<()> {
             EventType::Key(key_event) => match app.question_answer.user_answer {
                   Some(i) => match key_event.code {
                         Char('q') | KeyCode::Esc => app.exit = true,
-                        Char('e') => {app.question_answer.user_answer = None; app.item_list_state.select(None)},
+                        Char('e') | KeyCode::Enter => {app.question_answer.user_answer = None; app.item_list_state.select(None)},
                         _ => {}
                   },
                   None => match key_event.code {
                         Char('q') | KeyCode::Esc => app.exit = true,
-                        Char('w') => list_move_up(&mut app.item_list_state),
-                        Char('s') => list_move_down(&mut app.item_list_state, app.question_answer.possible_answers.len()),
-                        Char('e') => if let Some(i) = app.item_list_state.selected() {
+                        Char('w') | KeyCode::Up => list_move_up(&mut app.item_list_state),
+                        Char('s') | KeyCode::Down => list_move_down(&mut app.item_list_state, app.question_answer.possible_answers.len()),
+                        Char('e') | KeyCode::Enter => if let Some(i) = app.item_list_state.selected() {
                               if i < app.question_answer.possible_answers.len(){
                                     app.question_answer.user_answer = Some(i);
                                     app.item_list_state.select(None);

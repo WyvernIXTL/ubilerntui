@@ -1,6 +1,6 @@
 /**
- * ratatui-selector
- * Copyright (C) 2023 Adam McKellar
+ * ubilerntui
+ * Copyright (C) 2024 Adam McKellar
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -96,14 +96,15 @@ fn main() -> Result<()> {
 
       db.insert(0, "What is 2 + 2 ?", "5", vec!["4", "3", "6"])?;
 
+      let first_question = db.get_random()?;
+      let mut app = App::new(first_question);
+
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
       trace!("Entered alternative screen mode.");
 
-      let first_question = db.get_random()?;
-
-      let mut app = App::new(first_question);
+      
       app.question_answer.scramble();
 
       let event_handler = event::InputEventHandler::new(FPS);
