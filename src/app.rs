@@ -37,12 +37,14 @@ use ratatui::widgets::ListState;
 pub struct App {
       pub exit: bool,
       pub item_list_state: ListState,
-      pub question_answer: QuestionAnswer
+      pub question_answer: QuestionAnswer,
+      pub total_progress: usize,
+      pub total_question_count: usize
 }
 
 impl App {
-      pub fn new(question_answer: QuestionAnswer) -> Self {
-            Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer}
+      pub fn new(question_answer: QuestionAnswer, total_progress: usize, total_question_count: usize) -> Self {
+            Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer, total_progress, total_question_count}
       }
 }
 

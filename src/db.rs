@@ -30,7 +30,18 @@ use crate::app::QuestionAnswer;
 use crate::fs::get_local_dir;
 
 
-const DB_NAME: &str = "ublerndb.sqlite3";
+const DB_NAME: &str = "ubilerndb.sqlite3";
+const TOTAL_COUNT_TRYS_PER_QUESTION: usize = 3;
+
+const SQL_CREATE_QUESTION_TABLE: &str = "CREATE TABLE IF NOT EXISTS questions (
+      id                            INTEGER PRIMARY KEY,
+      question                      TEXT NOT NULL,     
+      answers_0                     TEXT NOT NULL,
+      answers_1                     TEXT NOT NULL,
+      answers_2                     TEXT NOT NULL,
+      answers_3                     TEXT NOT NULL,
+      correctly_answered            INTEGER NOT NULL
+)";
 
 
 pub struct DB {
@@ -38,24 +49,22 @@ pub struct DB {
 }
 
 impl DB {
-      pub fn new(db_dir_name: &str ) -> Result<Self> {
+      pub fn new(db_dir_name: &str) -> Result<Self> {
             let db_path = get_local_dir(db_dir_name)?.join(DB_NAME);
-
             let db = Connection::open(db_path)?;
-
             db.execute(
-                  "CREATE TABLE IF NOT EXISTS questions (
-                        id                            INTEGER PRIMARY KEY,
-                        question                      TEXT NOT NULL,     
-                        answers_0                     TEXT NOT NULL,
-                        answers_1                     TEXT NOT NULL,
-                        answers_2                     TEXT NOT NULL,
-                        answers_3                     TEXT NOT NULL,
-                        correctly_answered            INTEGER NOT NULL
-                  )",
+                  SQL_CREATE_QUESTION_TABLE,
                   ()
             )?;
+            Ok(Self { db: db })
+      }
 
+      fn new_in_memory() -> Result<Self> {
+            let db = Connection::open_in_memory()?;
+            db.execute(
+                  SQL_CREATE_QUESTION_TABLE,
+                  ()
+            )?;
             Ok(Self { db: db })
       }
 
@@ -95,25 +104,50 @@ impl DB {
                   )?
             )
       }
+
+      pub fn update_count_correct_answers(&self, id: usize, new_count: usize) -> Result<()> {
+            self.db.execute(
+                  "UPDATE questions
+                  SET correctly_answered = ?1
+                  WHERE id = ?2", 
+                  (&new_count, &id)
+            )?;
+
+            Ok(())
+      }
+
+      pub fn get_total_progress(&self) -> Result<usize> {
+            Ok(
+                  self.db.query_row(
+                        "SELECT sum(correctly_answered)
+                        FROM questions", 
+                        (),
+                        |f| f.get(0)
+                  )?
+            )
+      }
+
+      pub fn get_total_question_count(&self) -> Result<usize> {
+            let row_count: usize = self.db.query_row(
+                  "SELECT count()
+                  FROM questions", 
+                  (), 
+                  |f| f.get(0)
+            )?;
+
+            Ok(row_count * TOTAL_COUNT_TRYS_PER_QUESTION)
+      }
 }
+
 
 
 #[cfg(test)]
 mod tests {
       use super::*;
 
-      fn del_db_file() -> Result<()> {
-            let path = get_local_dir("db_test")?.join(DB_NAME);
-            if Path::new(&path).exists() {
-                  remove_file(path)?;
-            }
-            Ok(())
-      }
-
       #[test]
       fn test_insertion_and_read_single() -> Result<()> {
-            del_db_file()?;
-            let db = DB::new("db_test")?;
+            let db = DB::new_in_memory()?;
             let right_answer = "0";
             let false_answers = vec!["1", "2", "3"];
             
@@ -126,6 +160,56 @@ mod tests {
             assert_eq!(q.possible_answers[0], "0");
             assert_eq!(q.possible_answers[1..4], false_answers);
             assert_eq!(q.question, "nan");
+
+            Ok(())
+      }
+
+      #[test]
+      fn test_update_count_correct_answers() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            let right_answer = "0";
+            let false_answers = vec!["1", "2", "3"];
+            db.insert(1, "nan", right_answer, false_answers.clone())?;
+
+            let q = db.get_random()?;
+            assert_eq!(q.count_correctly_answered, 0);
+
+            db.update_count_correct_answers(1, 2)?;
+
+            let q = db.get_random()?;
+            assert_eq!(q.count_correctly_answered, 2);
+
+            Ok(())
+      }
+
+      #[test]
+      fn test_get_total_progress() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            let right_answer = "0";
+            let false_answers = vec!["1", "2", "3"];
+            db.insert(1, "nan", right_answer, false_answers.clone())?;
+
+            db.update_count_correct_answers(1, 2)?;
+
+            assert_eq!(db.get_total_progress()?, 2);
+
+            db.insert(2, "nan", right_answer, false_answers.clone())?;
+            db.update_count_correct_answers(2, 3)?;
+
+            assert_eq!(db.get_total_progress()?, 5);
+
+            Ok(())
+      }
+
+      #[test]
+      fn test_get_total_question_count() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            let right_answer = "0";
+            let false_answers = vec!["1", "2", "3"];
+            db.insert(1, "nan", right_answer, false_answers.clone())?;
+            db.insert(2, "nan", right_answer, false_answers.clone())?;
+
+            assert_eq!(db.get_total_question_count()?, TOTAL_COUNT_TRYS_PER_QUESTION * 2);
 
             Ok(())
       }

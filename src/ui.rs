@@ -68,6 +68,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             .constraints([
                   Constraint::Length(3),
                   Constraint::Length(1),
+                  Constraint::Length(1),
                   Constraint::Min(1),
                   Constraint::Length(3),
             ])
@@ -86,22 +87,37 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 
       frame.render_widget(title, chunks[0]);
 
-      render_question_progress(frame, chunks[1], &app.question_answer);
+      render_total_progress(frame, chunks[1], app.total_progress, app.total_question_count);
 
-      render_selector_list(frame, chunks[2], &app.question_answer, &mut app.item_list_state);
+      render_question_progress(frame, chunks[2], &app.question_answer);
+
+      render_selector_list(frame, chunks[3], &app.question_answer, &mut app.item_list_state);
 
       if app.question_answer.user_answer.is_none() {
-            let mut bottom_help_bar_text = vec!["(q)/(esc) beenden", "(w) hoch", "(s) runter", "(e) auswählen"];
-            render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
+            let mut bottom_help_bar_text = vec!["(q)/(esc) Beenden", "(w) Hoch", "(s) Runter", "(e) Auswählen"];
+            render_bottom_help_bar(frame, chunks[4], &mut bottom_help_bar_text);
       } else {
-            let mut bottom_help_bar_text = vec!["(q)/(esc) beenden", "(e) nächste Frage"];
-            render_bottom_help_bar(frame, chunks[3], &mut bottom_help_bar_text);
+            let mut bottom_help_bar_text = vec!["(q)/(esc) Beenden", "(e) Nächste Frage"];
+            render_bottom_help_bar(frame, chunks[4], &mut bottom_help_bar_text);
       }
 
 }
 
+fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usize) {
+      debug_assert!(prog <= total);
+      let ratio = prog as f64 / total as f64;
 
-pub fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
+      let progress_bar = LineGauge::default()
+            .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
+            .label("Fortschritt")
+            .ratio(ratio)
+            .gauge_style(Style::new().fg(Color::Green))
+            .line_set(symbols::line::THICK);
+
+      frame.render_widget(progress_bar, area);
+}
+
+fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
       let progress: f64;
       let fg_color;
       if q.count_correctly_answered >= 3 {
@@ -129,7 +145,7 @@ pub fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswe
 }
 
 
-pub fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_list_state: &mut ListState) {
+fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_list_state: &mut ListState) {
       let style_correct = Style::default().fg(Color::Black).bg(Color::Green);
       let style_wrong = Style::default().fg(Color::Black).bg(Color::Red);
 
@@ -180,7 +196,7 @@ pub fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, i
 }
 
 
-pub fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: &mut Vec<&str>) {
+fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: &mut Vec<&str>) {
       if text.len() == 1 {
             text.resize(3, "");
             text.swap(0, 1);

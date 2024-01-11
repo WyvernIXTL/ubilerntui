@@ -24,17 +24,28 @@ use crossterm::event::KeyCode::{self, Char};
 
 use crate::app::App;
 use crate::event::EventType;
+use crate::db::DB;
 
 
 
-pub fn update(event: EventType, app: &mut App) -> Result<()> {
+pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
       match event {
             EventType::Resize(w, h) => {},
             EventType::Mouse(mouse_event) => {},
             EventType::Key(key_event) => match app.question_answer.user_answer {
                   Some(i) => match key_event.code {
                         Char('q') | KeyCode::Esc => app.exit = true,
-                        Char('e') | KeyCode::Enter => {app.question_answer.user_answer = None; app.item_list_state.select(None)},
+                        Char('e') | KeyCode::Enter => {
+                              app.question_answer.user_answer = None; 
+                              app.item_list_state.select(None);
+                              if let Ok(q) = db.get_random() {
+                                    app.question_answer = q;
+                                    app.question_answer.scramble();
+                              } else {
+                                    println!("Glückwunsch! Du hast alle Fragen gelernt!");
+                                    app.exit = true;
+                              }
+                        },
                         _ => {}
                   },
                   None => match key_event.code {
@@ -47,10 +58,14 @@ pub fn update(event: EventType, app: &mut App) -> Result<()> {
                                     app.item_list_state.select(None);
 
                                     if app.question_answer.right_answer == i {
+                                          app.total_progress += 1;
                                           app.question_answer.count_correctly_answered += 1;
                                     } else {
+                                          app.total_progress -= app.question_answer.count_correctly_answered;
                                           app.question_answer.count_correctly_answered = 0;
                                     }
+
+                                    db.update_count_correct_answers(app.question_answer.id, app.question_answer.count_correctly_answered)?;
                               }
                         },
                         _ => {}

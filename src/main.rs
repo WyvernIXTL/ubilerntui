@@ -92,20 +92,26 @@ fn main() -> Result<()> {
 
       let db = DB::new(DB_DIR_NAME)?;
 
-      db.db.execute("DELETE FROM questions WHERE id == 0", ())?;
+      db.db.execute("DELETE FROM questions", ())?;
 
       db.insert(0, "What is 2 + 2 ?", "5", vec!["4", "3", "6"])?;
+      db.insert(1, "What is 2 + 3 ?", "3", vec!["4", "5", "6"])?;
+      db.insert(2, "What is 2 + 6 ?", "32", vec!["4", "5", "6"])?;
 
       let first_question = db.get_random()?;
-      let mut app = App::new(first_question);
+      let mut app = App::new(
+            first_question, 
+            db.get_total_progress()?, 
+            db.get_total_question_count()?
+      );
+      app.question_answer.scramble();
+
 
       entered_alternative_mode.swap(true, Ordering::Relaxed);
       let mut term = Tui::new_with_term()?;
       term.enter()?;
       trace!("Entered alternative screen mode.");
 
-      
-      app.question_answer.scramble();
 
       let event_handler = event::InputEventHandler::new(FPS);
 
@@ -114,7 +120,7 @@ fn main() -> Result<()> {
       let mut fps_timer = fpslimiter::FpsTimer::new(FPS);
       loop {
             while let Ok(event) = event_handler.receiver.try_recv() {
-                  update::update(event, &mut app)?;
+                  update::update(event, &mut app, &db)?;
             }
             if app.exit {
                   break;
