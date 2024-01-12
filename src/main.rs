@@ -16,6 +16,12 @@
  */
 
 
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::time::{Instant, Duration};
+use std::thread;
+use std::env::{self, var};
+
 use tracing::{
       debug, 
       error, 
@@ -38,11 +44,8 @@ use color_eyre::{
             bail
       }
 };
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::time::{Instant, Duration};
-use std::thread;
-use std::env::{self, var};
+
+use clap::{Command, arg};
 
 pub mod logging;
 use logging::start_tracing;
@@ -68,6 +71,8 @@ pub mod db;
 use db::DB;
 
 pub mod fs;
+
+pub mod pdfparser;
 
 
 const LOG_DIR_NAME: &str = "logs";
