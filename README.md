@@ -8,6 +8,13 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 ![Selektor](./images/selector.png "Auswählen der Antwort")
 
 
+## Installation
+### Über Cargo
+```
+cargo install ubilerntui
+```
+
+
 ## Benutzung
 ```
 Eine TUI um für die UBI-Prüfung zu lernen.
@@ -24,13 +31,6 @@ Options:
       --version  Prints version information.
   -h, --help     Print help (see more with '--help')
 ```
-
-## Installation
-### Über Cargo
-```
-cargo install ubilerntui
-```
-
 
 ### Zum Starten
 1. Laden Sie den offiziellen Fragenkatalog aus dem Netz. ([duckduckgo](https://duckduckgo.com/?q=%2BUBI+Fragenkatalog+WSV+site%3Awsv.de+filetype%3Apdf&t=ffab&ia=web))
