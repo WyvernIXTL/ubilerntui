@@ -16,24 +16,16 @@
  */
 
 
-use tracing::{trace_span, trace, debug_span};
+use tracing::{trace_span, trace};
 
-use color_eyre::{
-      Section, 
-      eyre::{
-            Report,
-            Result,
-            WrapErr,
-            bail
-      }
-};
+use color_eyre::eyre::Result;
 
 use crossterm::event::{self, KeyEvent, MouseEvent, Event};
 
 use std::{
       sync::mpsc::{self, Receiver, Sender},
       thread,
-      time::{Duration, Instant},
+      time::Duration
 };
 
 
@@ -47,8 +39,7 @@ pub enum EventType {
 /// Those are then accessable via [channel](Receiver<EventType>) saved in this struct.
 pub struct  InputEventHandler {
       pub sender: Sender<EventType>, 
-      pub receiver: Receiver<EventType>,
-      handle: thread::JoinHandle<()>
+      pub receiver: Receiver<EventType>
 }
 
 impl InputEventHandler {
@@ -57,7 +48,7 @@ impl InputEventHandler {
             let frametime = 1_000_000_000 / fps;
             let (sender, receiver) = mpsc::channel::<EventType>();
 
-            let handle = {
+            {
                   let sender = sender.clone();
 
                   thread::spawn(move || {
@@ -85,10 +76,10 @@ impl InputEventHandler {
                                     }.expect("Failed sending in event channel.");
                               }
                         }
-                  })
-            };
+                  });
+            }
 
-            Self { sender: sender, receiver: receiver, handle: handle }
+            Self { sender: sender, receiver: receiver }
       }
 
       /// Get next key stroke/mouse event/resize event from channel.

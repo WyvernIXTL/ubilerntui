@@ -40,10 +40,10 @@ use crate::db::DB;
 /// and swaps out the old question with a random one in the [DB].
 pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
       match event {
-            EventType::Resize(w, h) => {},
-            EventType::Mouse(mouse_event) => {},
+            EventType::Resize(_, _) => {},
+            EventType::Mouse(_) => {},
             EventType::Key(key_event) => match app.question_answer.user_answer {
-                  Some(i) => match key_event.code {
+                  Some(_) => match key_event.code {
                         Char('q') | KeyCode::Esc => app.exit = true,
                         Char('e') | KeyCode::Enter => {
                               app.question_answer.user_answer = None; 

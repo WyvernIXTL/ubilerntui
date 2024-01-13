@@ -24,35 +24,17 @@
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::{Instant, Duration};
-use std::thread;
-use std::env::{self, var};
+use std::env;
 use std::path::PathBuf;
 use std::io;
 use std::io::Write;
 
 use tracing::{
-      debug, 
-      error, 
       info, 
-      warn, 
       trace, 
-      span, 
-      Level, 
-      instrument, 
-      debug_span,
-      error_span,
       trace_span
 };
-use color_eyre::{
-      Section, 
-      eyre::{
-            Report,
-            Result,
-            WrapErr,
-            bail
-      }
-};
+use color_eyre::eyre::Result;
 
 use colored::*;
 use once_cell::sync::Lazy;

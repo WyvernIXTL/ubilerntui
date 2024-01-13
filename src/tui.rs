@@ -27,13 +27,10 @@ use crossterm::{
             LeaveAlternateScreen
       }
 };
-use ratatui::{
-      prelude::{
+use ratatui::prelude::{
             CrosstermBackend, 
             Terminal
-      },
-      widgets::Paragraph
-};
+      };
 use std::io::{
       self, 
       Stderr
@@ -41,8 +38,6 @@ use std::io::{
 use color_eyre::{
       Section, 
       eyre::{
-            self,
-            Report,
             Result,
             WrapErr
       }

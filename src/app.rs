@@ -19,16 +19,6 @@
 use rand::thread_rng;
 use rand::seq::SliceRandom;
 
-use color_eyre::{
-      Section, 
-      eyre::{
-            Report,
-            Result,
-            WrapErr,
-            bail
-      }
-};
-
 use ratatui::widgets::ListState;
 
 

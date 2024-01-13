@@ -21,7 +21,6 @@
 use ratatui::{
       prelude::{
             Frame,
-            Stylize,
             Layout,
             Direction,
             Constraint,
@@ -45,15 +44,6 @@ use ratatui::{
       style::Color,
       layout::Alignment,
       symbols,
-};
-use color_eyre::{
-      Section, 
-      eyre::{
-            self,
-            Report,
-            Result,
-            WrapErr
-      }
 };
 
 use textwrap;

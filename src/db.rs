@@ -16,12 +16,6 @@
  */
 
 
-use std::env;
-use std::path::Path;
-use std::path::PathBuf;
-use std::fs::remove_file;
-
-
 use color_eyre::eyre::Result;
 use rusqlite::Connection;
 
