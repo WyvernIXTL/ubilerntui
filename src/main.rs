@@ -22,6 +22,8 @@ use std::time::{Instant, Duration};
 use std::thread;
 use std::env::{self, var};
 use std::path::PathBuf;
+use std::io;
+use std::io::Write;
 
 use tracing::{
       debug, 
@@ -46,7 +48,7 @@ use color_eyre::{
       }
 };
 
-use clap::{Command, arg};
+use colored::*;
 
 pub mod logging;
 use logging::start_tracing;
@@ -58,7 +60,7 @@ pub mod hooks;
 use hooks::eyre_term_exit_hook;
 
 pub mod app;
-use app::{App, QuestionAnswer};
+use app::App;
 
 pub mod event;
 
@@ -107,6 +109,12 @@ fn main() -> Result<()> {
 
       match matches.subcommand() {
             Some(("lade", sub_matches)) => {
+                  if !db.is_empty()? {
+                        if !yn_inquire("Das Laden wird die alten Daten überschreiben. Trotzdem tun?")? {
+                              return Ok(());
+                        }
+                        db.clear()?;
+                  }
                   let path_str = sub_matches.get_one::<String>("PFAD").expect("required");
                   let path = PathBuf::from(path_str);
                   let mut count = 0;
@@ -114,19 +122,26 @@ fn main() -> Result<()> {
                         db.insert_tuple(q)?;
                         count += 1;
                   }
-                  println!("{count} Fragen erfolgreich aus der PDF-Datei geladen.");
+                  let res_msg = format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
+                  println!("{}", res_msg);
             },
             Some(("loesche", sub_matches)) => {
                   match (*sub_matches).subcommand() {
                         Some(("fragen", _)) => {
+                              if !yn_inquire("Wollen Sie die Fragen wirklich aus der Datenbank löschen?")? {
+                                    return Ok(());
+                              }
                               db.clear()?;
                               info!("Deleted data in question table.");
-                              println!("Fragen erfolgreich aus der Datenbank entfernt.");
+                              println!("{}", "Fragen erfolgreich aus der Datenbank entfernt.".green());
                         },
                         Some(("fortschritt", _)) => {
+                              if !yn_inquire("Wollen Sie den Fortschritt wirklich aus der Datenbank löschen?")? {
+                                    return Ok(());
+                              }
                               db.clear_progress()?;
                               info!("Deleted progress in question table.");
-                              println!("Lern-Fortschritt erfolgreich aus der Datenbank entfernt.");
+                              println!("{}", "Lern-Fortschritt erfolgreich aus der Datenbank entfernt.".green());
                         },
                         _ => unimplemented!()
                   }
@@ -146,6 +161,22 @@ fn main() -> Result<()> {
       }
       
       Ok(())
+}
+
+fn yn_inquire(what: &str) -> Result<bool> {
+      loop {
+            print!("{} {} ", what.yellow(), "Y/n:".yellow());
+            io::stdout().flush()?;
+            let mut s = "".to_owned();
+            io::stdin().read_line(&mut s)?;
+            let s = s.to_lowercase();
+            let s = s.trim();
+            if s == "y" || s == "j" {
+                  return Ok(true);
+            } else if s == "n" {
+                  return Ok(false);
+            }
+      }
 }
 
 fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result<()> {

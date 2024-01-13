@@ -56,6 +56,10 @@ use color_eyre::{
       }
 };
 
+use textwrap;
+use once_cell::sync::Lazy;
+use hyphenation::{Language, Standard, Load};
+
 use crate::app::{App, QuestionAnswer};
 
 
@@ -74,18 +78,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             ])
             .split(area);
             
-      let title = Paragraph::new(
-            Text::styled(
-                  "UBI Lern TUI", 
-                  Style::default()
-            )
-      ).block(Block::default()
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded)
-            .padding(Padding::horizontal(2))
-      );
-
-      frame.render_widget(title, chunks[0]);
+      render_title_and_question(frame, chunks[0], &app.question_answer);
 
       render_total_progress(frame, chunks[1], app.total_progress, app.total_question_count);
 
@@ -101,6 +94,42 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             render_bottom_help_bar(frame, chunks[4], &mut bottom_help_bar_text);
       }
 
+}
+
+fn render_title_and_question(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
+      let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                  Constraint::Percentage(50),
+                  Constraint::Percentage(50)
+            ])
+            .split(area);
+
+      let title = Paragraph::new(
+            Text::styled(
+                  "UBI Lern TUI", 
+                  Style::default()
+            )
+      ).block(Block::default()
+            .borders(Borders::LEFT | Borders::TOP | Borders::BOTTOM)
+            .border_type(BorderType::Rounded)
+            .padding(Padding::horizontal(2))
+      );
+      frame.render_widget(title, chunks[0]);
+
+      let question_number = format!("Frage {}", q.id);
+      let question = Paragraph::new(
+            Text::styled(
+                  question_number, 
+                  Style::default()
+            )
+      ).alignment(Alignment::Right)
+      .block(Block::default()
+            .borders(Borders::RIGHT | Borders::TOP | Borders::BOTTOM)
+            .border_type(BorderType::Rounded)
+            .padding(Padding::horizontal(2))
+      );
+      frame.render_widget(question, chunks[1]);
 }
 
 fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usize) {
@@ -149,37 +178,77 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
       let style_correct = Style::default().fg(Color::Black).bg(Color::Green);
       let style_wrong = Style::default().fg(Color::Black).bg(Color::Red);
 
-      let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([
-                  Constraint::Length(2),
-                  Constraint::Min(1),
-            ])
-            .split(area);
+      static TEXTWRAP_DICT: Lazy<textwrap::WordSplitter> = Lazy::new(|| {
+            textwrap::WordSplitter::Hyphenation(Standard::from_embedded(Language::German1996).unwrap())
+      });
 
-      let question = Paragraph::new(q.question.as_str())
+      let textwrap_options = textwrap::Options::new((area.width - 6).try_into().unwrap()).word_splitter((*TEXTWRAP_DICT).clone());
+
+      macro_rules! wrap_text_count {
+            ($s:expr) => {
+                  {
+                        let s_vec = textwrap::wrap($s, &textwrap_options);
+                        let mut s_string: String = "".to_owned();
+                        for s_elem in s_vec.iter().take(s_vec.len()-1) {
+                              s_string.push_str(s_elem);
+                              s_string.push_str("\n");
+                        }
+                        s_string.push_str(s_vec.last().unwrap());
+                        (s_string, s_vec.len())
+                  }
+            };
+      }
+
+      macro_rules! wrap_text {
+            ($s:expr) => {
+                  wrap_text_count!($s).0
+            };
+      }
+
+      let (question_str, question_line_breaks)= wrap_text_count!(q.question.as_str());
+      let question = Paragraph::new(question_str)
             .block(Block::default()
             .borders(Borders::LEFT | Borders::RIGHT | Borders::TOP)
             .border_type(BorderType::Rounded)
             .padding(Padding::horizontal(2))
       );
 
+      let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                  Constraint::Length((question_line_breaks+1).try_into().unwrap()),
+                  Constraint::Min(1),
+            ])
+            .split(area);
+
       frame.render_widget(question, chunks[0]);
 
 
       let mut list_items = Vec::<ListItem>::new();
+      const ABCD: &str = "abcd";
+
+
+      macro_rules! abcd_i {
+            ($s:expr, $i:expr) => {
+                  {
+                        let list_item_string = String::from(ABCD.chars().nth($i).unwrap()) + ") " + $s;
+                        ListItem::new(String::from(wrap_text!(&list_item_string)))
+                  }
+            };
+      }
+
       if let Some(user_answer) = q.user_answer {
             for (i, e) in q.possible_answers.iter().enumerate() {
                   if i == q.right_answer {
-                        list_items.push(ListItem::new(e.as_str()).style(style_correct));
+                        list_items.push( abcd_i!(e, i).style(style_correct) );
                   } else if i == user_answer {
-                        list_items.push(ListItem::new(e.as_str()).style(style_wrong));
+                        list_items.push( abcd_i!(e, i).style(style_wrong) );
                   } else {
-                        list_items.push(ListItem::new(e.as_str()));
+                        list_items.push( abcd_i!(e, i) );
                   }
             }
       } else {
-          list_items = q.possible_answers.iter().map(|s| ListItem::new(s.as_str())).collect();
+            list_items = q.possible_answers.iter().enumerate().map(|(i, s)| abcd_i!(s, i)).collect();
       }
 
       let selector_list = List::new(list_items)

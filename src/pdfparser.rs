@@ -34,7 +34,10 @@ macro_rules! to_trimmed_string {
       ($e:expr) => {
             {
                   let s = ($e).trim();
+                  let s = s.replace("-\n", "");
                   let s = s.replace("\n", " ");
+                  let s = s.replace("   ", " ");
+                  let s = s.replace("  ", " ");
                   String::from(s)
             }
       };
@@ -42,7 +45,7 @@ macro_rules! to_trimmed_string {
 
 pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>> {
       static REG: Lazy<Regex> = Lazy::new(|| Regex::new(
-            r"(?ms)^(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"
+            r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"
       ).unwrap());
       let res = REG.captures_iter(&s).map(|caps| {
             let id = usize::from_str_radix(&caps["id"], 10).unwrap();
@@ -86,7 +89,7 @@ d)   wrong answer 3
 
 
 
-129.   q part1
+ 129.   q part1
 q part2   [129]
 
 a)   correct answer
