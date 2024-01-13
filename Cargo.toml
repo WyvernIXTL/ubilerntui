@@ -6,7 +6,7 @@ authors = ["Adam McKellar"]
 description = "This is a terminal UI for learning for the UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk."
 license = "GPL-3.0-or-later"
 repository = "https://github.com/WyvernIXTL/ubilerntui"
-keywords = ["lernen", "ubi", "ukw", "binnenschiffahrtsfunk", "sprechfunkzeugnis"]
+keywords = ["lernen", "ubi", "ukw", "binnenschiffahrt", "sprechfunkzeugnis"]
 categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
