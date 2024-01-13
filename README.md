@@ -1,6 +1,6 @@
 # ubilerntui
 
-Eine Terminal UI, um für die UKW-Sprechfunkzeugnis-Prüfung zu lernen.
+Eine Terminal UI, um für die "UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk"-Prüfung zu lernen.
 
 Ein großer Unterschied zu anderen Programmen, die das Gleiche versprechen, ist hier, dass die Fragen direkt eingelesen werden aus der PDF.
 Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden ([zBsp. über duckduckgo](https://duckduckgo.com/?q=%2BUBI+Fragenkatalog+WSV+site%3Awsv.de+filetype%3Apdf&t=ffab&ia=web)) und mit diesem Programm automatisch parsen. Mehr dazu unter [Benutzung](#benutzung)
@@ -17,7 +17,7 @@ cargo install ubilerntui
 
 ## Benutzung
 ```
-Eine TUI um für die UBI-Prüfung zu lernen.
+Eine TUI, um für die UBI-Prüfung zu lernen.
 
 Usage: ubilerntui.exe [OPTIONS] [COMMAND]
 

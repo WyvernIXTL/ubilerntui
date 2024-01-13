@@ -24,7 +24,7 @@ use once_cell::sync::Lazy;
 
 static LONG_HELP: Lazy<String> = Lazy::new(|| format!("{} v{} (c) {} {}
 
-Eine TUI um für die UBI-Prüfung zu lernen.
+Eine TUI, um für die UBI-Prüfung zu lernen.
 
 Anleitung:
 1. Holen Sie sich den offiziellen Fragebogen des WSV.
@@ -47,7 +47,7 @@ Anleitung:
 /// ```
 pub fn commands_and_flags() -> Command {
       Command::new("ubilerntui")
-      .about("Eine TUI um für die UBI-Prüfung zu lernen.")
+      .about("Eine TUI, um für die UBI-Prüfung zu lernen.")
       .long_about(&*LONG_HELP)
       .args([
             arg!(--license "Prints license information."),
