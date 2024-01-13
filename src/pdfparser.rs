@@ -25,11 +25,13 @@ use regex::Regex;
 use once_cell::sync::Lazy;
 
 
+/// Uses [pdf_extract] crate to [extract](pdf_extract::extract_text_from_mem) PDF read on location of `path`.
 pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
       let bytes = read(path)?;
       Ok( extract_text_from_mem(&bytes)? )
 }
 
+/// Trims, replaces bad line breaks and multiple spaces withing string.
 macro_rules! to_trimmed_string {
       ($e:expr) => {
             {
@@ -43,6 +45,7 @@ macro_rules! to_trimmed_string {
       };
 }
 
+/// Uses regex to parse out all questions from string.
 pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>> {
       static REG: Lazy<Regex> = Lazy::new(|| Regex::new(
             r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"

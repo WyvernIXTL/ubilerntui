@@ -31,6 +31,18 @@ use std::fs::create_dir_all;
 use std::env;
 
 
+/// Returns the path to the subfolder `dir_name` of the local folder of the program.
+/// 
+/// - `~/AppData/Local/ubilerntui/$dir_name/` in windows
+/// - `$XDG_DATA_HOME/ubilerntui/$dir_name/ or $HOME/.local/share/ubilerntui/$dir_name/` in linux
+/// - `$HOME/Library/Application Support/ubilerntui/$dir_name/` in MacOS
+/// 
+/// Also creates the folder if it does not exist.
+/// If getting the local dir is impossible a folder relative to the execution of the program is created.
+/// 
+/// ```
+/// let path = get_local_dir("db")?;
+/// ```
 pub fn get_local_dir<S: ToString>(dir_name: S) -> Result<PathBuf> {
       let path;
       if let Some(base_dir) = BaseDirs::new() {

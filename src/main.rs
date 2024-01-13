@@ -1,3 +1,9 @@
+//! This is a terminal UI for learning for the `UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk`.
+//! 
+//! The TUI has capabilities to read and parse the official published PDF (`UBI Fragenkatalog`) 
+//! and to train each question.
+
+
 /**
  * ubilerntui
  * Copyright (C) 2024 Adam McKellar
@@ -49,6 +55,7 @@ use color_eyre::{
 };
 
 use colored::*;
+use once_cell::sync::Lazy;
 
 pub mod logging;
 use logging::start_tracing;
@@ -86,7 +93,27 @@ const LOG_DIR_NAME: &str = "logs";
 const DB_DIR_NAME: &str = "db";
 const FPS: u64 = 120;
 
+const LICENSE_NOTICE: Lazy<String> = Lazy::new(|| format!("{}
+Copyright (C) 2024 {}
 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+For detailed licensing of libraries please look at LICENSES.html",
+env!("CARGO_PKG_NAME"), env!("CARGO_PKG_AUTHORS")));
+
+
+/// Entry point of program.
 fn main() -> Result<()> {
       let entered_alternative_mode = Arc::new(AtomicBool::new(false));
       eyre_term_exit_hook(entered_alternative_mode.clone())?;
@@ -147,6 +174,19 @@ fn main() -> Result<()> {
                   }
             },
             _ => {
+                  if let Some(version_reqested) = matches.get_one::<bool>("version") {
+                        if *version_reqested {
+                              println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+                              return Ok(());
+                        }
+                  }
+                  if let Some(license_requested) = matches.get_one::<bool>("license") {
+                        if *license_requested {
+                              println!("{}", &*LICENSE_NOTICE);
+                              return Ok(());
+                        }
+                  }
+
                   if db.is_empty()? {
                         println!("Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:");
                         commands.print_long_help()?;
@@ -163,6 +203,7 @@ fn main() -> Result<()> {
       Ok(())
 }
 
+/// Inquire the user if action should be taken via simple y/n question.
 fn yn_inquire(what: &str) -> Result<bool> {
       loop {
             print!("{} {} ", what.yellow(), "Y/n:".yellow());
@@ -179,6 +220,22 @@ fn yn_inquire(what: &str) -> Result<bool> {
       }
 }
 
+/// Runs TUI for learning.
+/// 
+/// This function does:
+/// 1. Enter alternative and raw terminal modes.
+/// 2. Spawns thread for capture of user input.
+/// 3. Main loop:
+///     1. Updates state of [App].
+///     2. Draws TUI.
+///     3. Lets thread sleep for power savings.
+/// 4. Exits alternative and raw terminal modes.
+/// ```
+/// let entered_alternative_mode = Arc::new(AtomicBool::new(false));
+/// eyre_term_exit_hook(entered_alternative_mode.clone())?;
+/// let db = DB::new("db")?;
+/// start_learn_tui(entered_alternative_mode, &db)?;
+/// ```
 fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result<()> {
       let first_question = db.get_random()?;
       let mut app = App::new(

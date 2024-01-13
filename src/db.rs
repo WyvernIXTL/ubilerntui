@@ -44,11 +44,33 @@ const SQL_CREATE_QUESTION_TABLE: &str = "CREATE TABLE IF NOT EXISTS questions (
 )";
 
 
+/// Struct holding the [Connection] with an sqlite database.
+/// 
+/// Moreover there are many helper fuctions for manipulating the questions state: 
+/// - Inserting questions.
+/// - Getting [QuestionAnswer] structs at random.
+/// - Clearing questions.
+/// - Clearing progress.
+/// 
+/// ```
+/// let db = DB::new("db")?;
+/// ```
+/// 
+/// By initializing `DB` via `new` a file is created 
+/// in the program specifique local folder of your os
+/// if it does not allready exist.
+/// 
+/// Only one [DB] struct should exist.
 pub struct DB {
       pub db: Connection
 }
 
 impl DB {
+      /// Connects to database in local folder of program[^note].
+      /// [^note]: via [get_local_dir()]
+      /// 
+      /// If the database or folder does not exist, the database and folder are created.
+      /// The table `questions` is also created holding all necessary information per question.
       pub fn new(db_dir_name: &str) -> Result<Self> {
             let db_path = get_local_dir(db_dir_name)?.join(DB_NAME);
             let db = Connection::open(db_path)?;
@@ -59,17 +81,13 @@ impl DB {
             Ok(Self { db: db })
       }
 
-      fn new_in_memory() -> Result<Self> {
-            let db = Connection::open_in_memory()?;
-            db.execute(
-                  SQL_CREATE_QUESTION_TABLE,
-                  ()
-            )?;
-            Ok(Self { db: db })
-      }
-
+      /// Inserts question into database (table `question`).
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// ```
       pub fn insert<S: ToString>(&self, id: usize, question: S, right_answer: S, false_answers: Vec<S>) -> Result<()> {
-            debug_assert!(false_answers.len() == 3);
+            debug_assert!(false_answers.len() == TOTAL_COUNT_TRYS_PER_QUESTION);
 
             self.db.execute(
                   "INSERT INTO questions (id, question, answers_0, answers_1, answers_2, answers_3, correctly_answered)
@@ -80,10 +98,21 @@ impl DB {
             Ok(())
       }
 
+      /// Inserts question as tuple into database (table `question`).
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert( (1, "What is 1+1 ?", "2", vec!["1", "0", "3"]) )?;
+      /// ```
       pub fn insert_tuple<S: ToString>(&self, (id, question, right_answer, false_answers): (usize, S, S, Vec<S>)) -> Result<()> {
             self.insert(id, question, right_answer, false_answers)
       } 
 
+      /// Returns random question as [QuestionAnswer] where question is not answered consecutively correct more than 2 times.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// let q = db.get_random()?;
+      /// ```
       pub fn get_random(&self) -> Result<QuestionAnswer> {
             Ok(
                   self.db.query_row(
@@ -109,7 +138,14 @@ impl DB {
             )
       }
 
+      /// Update `question progress` of question with `id` with new value `new_count`.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// db.update_count_correct_answers(1, 2)?;
+      /// ```
       pub fn update_count_correct_answers(&self, id: usize, new_count: usize) -> Result<()> {
+            debug_assert!(new_count <= TOTAL_COUNT_TRYS_PER_QUESTION);
             self.db.execute(
                   "UPDATE questions
                   SET correctly_answered = ?1
@@ -120,6 +156,19 @@ impl DB {
             Ok(())
       }
 
+      /// Returns sum of the questions `question progress`.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// assert_eq!(db.get_total_progress()?, 0);
+      /// db.update_count_correct_answers(1, 2)?;
+      /// assert_eq!(db.get_total_progress()?, 2);
+      /// 
+      /// db.insert(2, "What is 1+2 ?", "3", vec!["1", "0", "2"])?;
+      /// assert_eq!(db.get_total_progress()?, 2);
+      /// db.update_count_correct_answers(2, 1)?;
+      /// assert_eq!(db.get_total_progress()?, 3);
+      /// ```
       pub fn get_total_progress(&self) -> Result<usize> {
             Ok(
                   self.db.query_row(
@@ -131,6 +180,20 @@ impl DB {
             )
       }
 
+      /// Returns the amount/count of questions * the max count a question can be answered correct.
+      /// 
+      /// This amounts to the total work of the user 
+      /// until he answered every question consecutively 3 times correct.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// assert_eq!(db.get_total_question_count()?, 0);
+      /// 
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// assert_eq!(db.get_total_question_count()?, 3);
+      /// 
+      /// db.insert(2, "What is 1+2 ?", "3", vec!["1", "0", "2"])?;
+      /// assert_eq!(db.get_total_question_count()?, 6);
+      /// ```
       pub fn get_total_question_count(&self) -> Result<usize> {
             let row_count: usize = self.db.query_row(
                   "SELECT count()
@@ -142,6 +205,14 @@ impl DB {
             Ok(row_count * TOTAL_COUNT_TRYS_PER_QUESTION)
       }
 
+      /// Checks if `questions` table has row entries.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// assert!(db.is_empty()?);
+      /// 
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// assert!(!db.is_empty()?);
+      /// ```
       pub fn is_empty(&self) -> Result<bool> {
             let row_count: usize = self.db.query_row(
                   "SELECT count()
@@ -152,11 +223,30 @@ impl DB {
             Ok(row_count == 0)
       }
 
+      /// Clear all rows in `questions` table.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// assert!(!db.is_empty()?);
+      /// 
+      /// db.clear()?;
+      /// assert!(db.is_empty()?);
+      /// ```
       pub fn clear(&self) -> Result<()> {
             self.db.execute("DELETE FROM questions", ())?;
             Ok(())
       }
 
+      /// Resets `question progress` of every question.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// db.update_count_correct_answers(1, 2)?;
+      /// assert_eq!(db.get_total_progress()?, 2);
+      /// 
+      /// db.clear_progress()?;
+      /// assert_eq!(db.get_total_progress()?, 0);
+      /// ```
       pub fn clear_progress(&self) -> Result<()> {
             self.db.execute(
                   "UPDATE questions
@@ -167,6 +257,16 @@ impl DB {
             Ok(())
       }
 
+      /// Checks if there are no questions with `question progress` less than 
+      /// the max count a question can be answered correct.
+      /// ```
+      /// let db = DB::new("db")?;
+      /// db.insert(1, "What is 1+1 ?", "2", vec!["1", "0", "3"])?;
+      /// assert!(!db.no_open_questions()?);
+      /// 
+      /// db.update_count_correct_answers(1, 3)?;
+      /// assert!(db.no_open_questions()?);
+      /// ```
       pub fn no_open_questions(&self) -> Result<bool> {
             let row_count: usize = self.db.query_row(
                   "SELECT count()
@@ -184,6 +284,18 @@ impl DB {
 #[cfg(test)]
 mod tests {
       use super::*;
+
+      impl DB {
+            /// Returns database, which works in memory. This is for testing purposes.
+            fn new_in_memory() -> Result<Self> {
+                  let db = Connection::open_in_memory()?;
+                  db.execute(
+                        SQL_CREATE_QUESTION_TABLE,
+                        ()
+                  )?;
+                  Ok(Self { db: db })
+            }
+      }
 
       #[test]
       fn test_insertion_and_read_single() -> Result<()> {

@@ -31,6 +31,16 @@ use tracing::error;
 
 use crate::tui::partial_exit;
 
+
+/// Installs custom panic hooks which also handle terminal raw and alternative mode, when those are enabled.
+/// 
+/// ```
+/// let entered_alternative_mode = Arc::new(AtomicBool::new(false));
+/// eyre_term_exit_hook(entered_alternative_mode.clone())?;
+/// ```
+/// 
+/// For this to work correctly `exit_alternative_mode` needs to be set to `true` 
+/// when alternative mode and raw mode are enabled for the terminal.
 pub fn eyre_term_exit_hook(exit_alternative_mode: Arc<AtomicBool>) -> Result<()> {
       let hook_builder = color_eyre::config::HookBuilder::default();
       let (panic_hook, eyre_hook) = hook_builder.into_hooks();

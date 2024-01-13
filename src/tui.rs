@@ -51,7 +51,16 @@ use color_eyre::{
 use crate::ui;
 use crate::app;
 
-
+/// Holds handle to functionality of underlying terminal.
+/// 
+/// There are functions for entering the alternative mode of the terminal 
+/// and exiting it.
+/// ```
+/// let tui = Tui::new_with_term()?;
+/// tui.enter()?;
+/// /// alternative mode
+/// tui.exit()?
+/// ```
 pub struct Tui {
       terminal: Terminal<CrosstermBackend<Stderr>>
 }
@@ -65,6 +74,11 @@ impl Tui {
             Ok( Tui::new(Terminal::new(CrosstermBackend::new(io::stderr()))?) )
       }
 
+      /// Enters alternative mode of terminal and hides cursor.
+      /// ```
+      /// let tui = Tui::new_with_term()?;
+      /// tui.enter()?;
+      /// ```
       pub fn enter(&mut self) -> Result<()> {
             terminal::enable_raw_mode()
                   .wrap_err("Failed enabling raw mode for terminal.")
@@ -83,6 +97,12 @@ impl Tui {
             Ok(())
       }
 
+      /// Exits alternative mode of terminal making terminal usable agains as such.
+      /// ```
+      /// let tui = Tui::new_with_term()?;
+      /// tui.enter()?;
+      /// tui.exit()?;
+      /// ```
       pub fn exit(&mut self) -> Result<()> {
             partial_exit()?;
 
@@ -92,6 +112,7 @@ impl Tui {
             Ok(())
       }
 
+      /// Draws TUI to terminal.
       pub fn draw(&mut self, app: &mut app::App) -> Result<()> {
             self.terminal.draw(|frame| ui::draw(frame, app))?;
             Ok(())
@@ -103,6 +124,12 @@ impl Tui {
       }
 }
 
+/// Exits termial alternative mode and raw mode like exit without having access to [Tui] struct.
+/// 
+/// This function is needed for error handling and restoring the terminal to an usable state after a panic.
+/// ```
+/// partial_exit()?;
+/// ```
 pub fn partial_exit() -> Result<()> {
       crossterm::execute!(
             io::stderr(), 

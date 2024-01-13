@@ -63,6 +63,9 @@ use hyphenation::{Language, Standard, Load};
 use crate::app::{App, QuestionAnswer};
 
 
+/// Renders to screen. UI Part.
+/// 
+/// This function splits the screen into parts and calls helper functions to render each one of them.
 pub fn draw(frame: &mut Frame, app: &mut App) {
       let area = frame.size();
 
@@ -96,6 +99,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 
 }
 
+/// Top part of TUI. (title and number of question)
 fn render_title_and_question(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
       let chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -132,6 +136,7 @@ fn render_title_and_question(frame: &mut Frame, area: Rect, q: &QuestionAnswer) 
       frame.render_widget(question, chunks[1]);
 }
 
+/// Progress bar. (total progress / total tries)
 fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usize) {
       debug_assert!(prog <= total);
       let ratio = prog as f64 / total as f64;
@@ -146,6 +151,7 @@ fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usiz
       frame.render_widget(progress_bar, area);
 }
 
+/// Progress bar. (progress of question / total tries per question)
 fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
       let progress: f64;
       let fg_color;
@@ -173,7 +179,8 @@ fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
       frame.render_widget(progress_bar, area);
 }
 
-
+/// Renders selector question and list where user can choose an answer. 
+/// If the user chose one this function displays if the answer was correct and the right answer if not.
 fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_list_state: &mut ListState) {
       let style_correct = Style::default().fg(Color::Black).bg(Color::Green);
       let style_wrong = Style::default().fg(Color::Black).bg(Color::Red);
@@ -264,7 +271,7 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
       frame.render_stateful_widget(selector_list, chunks[1], item_list_state);
 }
 
-
+/// Help bar showing key bindings.
 fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: &mut Vec<&str>) {
       if text.len() == 1 {
             text.resize(3, "");

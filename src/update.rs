@@ -27,7 +27,17 @@ use crate::event::EventType;
 use crate::db::DB;
 
 
-
+/// This function takes the user input changes the state of the TUI.
+/// 
+/// There are multiple states:
+/// - The user has made no answer yet.
+/// - The user has made an answer.
+///   - The user is shown wether or not his answer is correct.
+/// 
+/// In essence [App] is the state and [update] is the logic changing the state following the users input.
+/// 
+/// Update moreover takes the [DB] in, updates the `question progress` of the old question
+/// and swaps out the old question with a random one in the [DB].
 pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
       match event {
             EventType::Resize(w, h) => {},
@@ -77,6 +87,18 @@ pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
 }
 
 
+/// Updates the [list state](ListState) when user moves cursor up.
+/// 
+/// Checks if cursor is visible. 
+/// If not the cursor is made visible and the cursor is moved to the start of the list.
+/// Checks if the cursor is at the start of the list. If it is there is no update being made.
+/// 
+/// ```
+/// let mut list = ListState::default();
+/// assert_eq!(list.selected(), None);
+/// list_move_up(&mut list, 4);
+/// assert_eq!(list.selected(), Some(0));
+/// ```
 fn list_move_up(list: &mut ListState) {
       let current = list.selected().unwrap_or(0);
       let next;
@@ -88,6 +110,18 @@ fn list_move_up(list: &mut ListState) {
       list.select(Some(next));
 }
 
+/// Updates the [list state](ListState) when user moves cursor down.
+/// 
+/// Checks if cursor is visible. 
+/// If not the cursor is made visible and the cursor is moved to the end of the list.
+/// Checks if the cursor is at the end of the list. If it is there is no update being made.
+/// 
+/// ```
+/// let mut list = ListState::default();
+/// assert_eq!(list.selected(), None);
+/// list_move_down(&mut list, 4);
+/// assert_eq!(list.selected(), Some(3));
+/// ```
 fn list_move_down(list: &mut ListState, list_size: usize) {
       let current = list.selected().unwrap_or(list_size-1);
       let next;

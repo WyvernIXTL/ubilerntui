@@ -43,6 +43,8 @@ pub enum EventType {
     Resize(u16, u16)
 }
 
+/// On creation spawns thread capturing key strokes, mouse movements and resizes of window.
+/// Those are then accessable via [channel](Receiver<EventType>) saved in this struct.
 pub struct  InputEventHandler {
       pub sender: Sender<EventType>, 
       pub receiver: Receiver<EventType>,
@@ -50,6 +52,7 @@ pub struct  InputEventHandler {
 }
 
 impl InputEventHandler {
+      /// Returns struct with channels. Spawns thread capturing key strokes, mouse movements and resizes of window.
       pub fn new(fps: u64) -> Self {
             let frametime = 1_000_000_000 / fps;
             let (sender, receiver) = mpsc::channel::<EventType>();
@@ -88,6 +91,7 @@ impl InputEventHandler {
             Self { sender: sender, receiver: receiver, handle: handle }
       }
 
+      /// Get next key stroke/mouse event/resize event from channel.
       pub fn get(&mut self) -> Result<EventType> {
             Ok(self.receiver.recv()?)
       }

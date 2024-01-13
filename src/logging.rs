@@ -45,6 +45,12 @@ use crate::fs::get_local_dir;
 const MAX_LOG_FILES: usize = 10;
 
 
+/// If it does not exist, creates folder for logs, and starts structured json logging.
+/// ```
+/// start_tracing("logs")?;
+/// ```
+/// Should be called after eyre hooks have been installed.
+/// One logfile per session is created.
 pub fn start_tracing(log_dir_name: &str) -> Result<()> {
       let log_file = create_new_logfile(log_dir_name, MAX_LOG_FILES)
             .wrap_err("Failed creating a new log file.")
@@ -69,6 +75,10 @@ pub fn start_tracing(log_dir_name: &str) -> Result<()> {
       Ok(())
 }
 
+/// Creates and returns new logfile with unique name and returns it.
+/// 
+/// Also prunes old log files.
+/// One lofile per call is created.
 fn create_new_logfile(log_dir_name: &str, max_num_log_files: usize) -> Result<File> {
       let date = Local::now();
       let date_string = format!("{}", date.format("%Y-%m-%d--%H-%M-%S"));
@@ -91,6 +101,10 @@ fn create_new_logfile(log_dir_name: &str, max_num_log_files: usize) -> Result<Fi
       Ok(log_file)
 }
 
+/// Removes old logfiles. 
+/// 
+/// `max_size` is the count of files the folder is to be pruned to.
+/// The files are sorted by their name. Thus if the name has no connection with the age there'll be a huge problem.
 fn prune_logs(dir: PathBuf, max_size: usize) -> Result<()> {
 
       let mut dir_entries = read_dir(dir.clone())

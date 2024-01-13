@@ -37,6 +37,14 @@ Anleitung:
 ", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_AUTHORS"), env!("CARGO_PKG_LICENSE"))
 );
 
+/// Returns structure for `clap` to parse cli arguments.
+/// 
+/// This crate contains a single function returning `Command` struct from `clap`.
+/// It is used to parse the command line arguments.
+/// 
+/// ```
+/// let commands = commands_and_flags();
+/// ```
 pub fn commands_and_flags() -> Command {
       Command::new("ubilerntui")
       .about("Eine TUI um für die UBI-Prüfung zu lernen.")

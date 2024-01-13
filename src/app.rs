@@ -32,7 +32,23 @@ use color_eyre::{
 use ratatui::widgets::ListState;
 
 
-
+/// This struct contains the programs state.
+/// 
+/// It's purpose is to serve as state, which will then be updated by [update()](crate::update::update).
+/// It contains a single [QuestionAnswer], the state of the [List](ratatui::widgets::List) displayed,
+/// the signal for exit and the total progress[^note].
+/// 
+/// [^note]: As else this progress count would need to be querried in the [db](crate::db::DB::get_total_progress), every frame.
+/// 
+/// ```
+/// let first_question = QuestionAnswer::new(0, "What is 1+1?", vec!["3", "2", "1", "4"], 1);
+/// let mut app = App::new(
+///       first_question, 
+///       0, 
+///       3
+/// );
+/// ```
+/// 
 #[derive(Default, Debug, Clone)]
 pub struct App {
       pub exit: bool,
@@ -43,12 +59,25 @@ pub struct App {
 }
 
 impl App {
+      /// Returns [App] struct.
+      /// 
+      /// Takes `total_progress` which is the sum of all correct trys of the user.
+      /// Takes `total_question_count` which is the count of questions * 3.
       pub fn new(question_answer: QuestionAnswer, total_progress: usize, total_question_count: usize) -> Self {
             Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer, total_progress, total_question_count}
       }
 }
 
 
+/// This struct saves a question, the right answer and wrong answers.
+/// 
+/// It also contains functions for [scrambling](QuestionAnswer::scramble) the answers, but with keeping track of the right answer.
+/// It also holds the users input used for rendering the result to the user.
+/// 
+/// ```
+/// let first_question = QuestionAnswer::new(0, "What is 1+1?", vec!["3", "2", "1", "4"], 1);
+/// ```
+/// 
 #[derive(Default, Debug, Clone)]
 pub struct QuestionAnswer {
       pub id: usize,
@@ -71,6 +100,9 @@ impl QuestionAnswer {
             }
       }
 
+      /// Scramble right and wrong answers.
+      /// 
+      /// `right_answer` always points at the index with the right answer in `possible_answers`.
       pub fn scramble(&mut self) {
             let mut nums: Vec<usize> = (0..4).collect();
             nums.shuffle(&mut thread_rng());
