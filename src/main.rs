@@ -21,6 +21,7 @@ use std::sync::Arc;
 use std::time::{Instant, Duration};
 use std::thread;
 use std::env::{self, var};
+use std::path::PathBuf;
 
 use tracing::{
       debug, 
@@ -73,6 +74,10 @@ use db::DB;
 pub mod fs;
 
 pub mod pdfparser;
+use pdfparser::{parse_pdf, read_pdf_to_string};
+
+pub mod argparsing;
+use argparsing::commands_and_flags;
 
 
 const LOG_DIR_NAME: &str = "logs";
@@ -97,12 +102,53 @@ fn main() -> Result<()> {
 
       let db = DB::new(DB_DIR_NAME)?;
 
-      db.db.execute("DELETE FROM questions", ())?;
+      let mut commands = commands_and_flags();
+      let matches = commands.clone().get_matches();
 
-      db.insert(0, "What is 2 + 2 ?", "5", vec!["4", "3", "6"])?;
-      db.insert(1, "What is 2 + 3 ?", "3", vec!["4", "5", "6"])?;
-      db.insert(2, "What is 2 + 6 ?", "32", vec!["4", "5", "6"])?;
+      match matches.subcommand() {
+            Some(("lade", sub_matches)) => {
+                  let path_str = sub_matches.get_one::<String>("PFAD").expect("required");
+                  let path = PathBuf::from(path_str);
+                  let mut count = 0;
+                  for q in parse_pdf(read_pdf_to_string(path)?)? {
+                        db.insert_tuple(q)?;
+                        count += 1;
+                  }
+                  println!("{count} Fragen erfolgreich aus der PDF-Datei geladen.");
+            },
+            Some(("loesche", sub_matches)) => {
+                  match (*sub_matches).subcommand() {
+                        Some(("fragen", _)) => {
+                              db.clear()?;
+                              info!("Deleted data in question table.");
+                              println!("Fragen erfolgreich aus der Datenbank entfernt.");
+                        },
+                        Some(("fortschritt", _)) => {
+                              db.clear_progress()?;
+                              info!("Deleted progress in question table.");
+                              println!("Lern-Fortschritt erfolgreich aus der Datenbank entfernt.");
+                        },
+                        _ => unimplemented!()
+                  }
+            },
+            _ => {
+                  if db.is_empty()? {
+                        println!("Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:");
+                        commands.print_long_help()?;
+                  } else if db.no_open_questions()? {
+                        println!("Sie haben bereits alle Fragen gelernt! 
+                        Sie können diese nochmal lernen via ubilerntui loesche fortschritt.");
+                        commands.print_help()?;
+                  } else {
+                        start_learn_tui(entered_alternative_mode, &db)?;
+                  }
+            }
+      }
+      
+      Ok(())
+}
 
+fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result<()> {
       let first_question = db.get_random()?;
       let mut app = App::new(
             first_question, 
@@ -138,6 +184,7 @@ fn main() -> Result<()> {
 
 
       term.exit()?;
+
       Ok(())
 }
 

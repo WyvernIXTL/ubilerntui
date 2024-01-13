@@ -80,6 +80,10 @@ impl DB {
             Ok(())
       }
 
+      pub fn insert_tuple<S: ToString>(&self, (id, question, right_answer, false_answers): (usize, S, S, Vec<S>)) -> Result<()> {
+            self.insert(id, question, right_answer, false_answers)
+      } 
+
       pub fn get_random(&self) -> Result<QuestionAnswer> {
             Ok(
                   self.db.query_row(
@@ -136,6 +140,42 @@ impl DB {
             )?;
 
             Ok(row_count * TOTAL_COUNT_TRYS_PER_QUESTION)
+      }
+
+      pub fn is_empty(&self) -> Result<bool> {
+            let row_count: usize = self.db.query_row(
+                  "SELECT count()
+                  FROM questions", 
+                  (), 
+                  |f| f.get(0)
+            )?;
+            Ok(row_count == 0)
+      }
+
+      pub fn clear(&self) -> Result<()> {
+            self.db.execute("DELETE FROM questions", ())?;
+            Ok(())
+      }
+
+      pub fn clear_progress(&self) -> Result<()> {
+            self.db.execute(
+                  "UPDATE questions
+                  SET correctly_answered = 0", 
+                  ()
+            )?;
+
+            Ok(())
+      }
+
+      pub fn no_open_questions(&self) -> Result<bool> {
+            let row_count: usize = self.db.query_row(
+                  "SELECT count()
+                  FROM questions
+                  WHERE correctly_answered < 3", 
+                  (), 
+                  |f| f.get(0)
+            )?;
+            Ok(row_count == 0)
       }
 }
 
@@ -211,6 +251,51 @@ mod tests {
 
             assert_eq!(db.get_total_question_count()?, TOTAL_COUNT_TRYS_PER_QUESTION * 2);
 
+            Ok(())
+      }
+
+      #[test]
+      fn test_is_empty() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            assert!(db.is_empty()?);
+            db.insert(1, "nan", "0", vec!["1", "2", "3"])?;
+            assert!(!db.is_empty()?);
+            Ok(())
+      }
+
+      #[test]
+      fn test_clear() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            assert!(db.is_empty()?);
+            db.insert(1, "nan", "0", vec!["1", "2", "3"])?;
+            assert!(!db.is_empty()?);
+            db.clear()?;
+            assert!(db.is_empty()?);
+
+            Ok(())
+      }
+
+      #[test]
+      fn test_clear_progress() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            assert!(db.no_open_questions()?);
+            db.insert(1, "nan", "0", vec!["1", "2", "3"])?;
+            db.update_count_correct_answers(1, 3)?;
+            assert!(db.no_open_questions()?);
+            db.clear_progress()?;
+            assert!(!db.no_open_questions()?);
+            Ok(())
+      }
+
+      #[test]
+      fn test_no_open_questions() -> Result<()> {
+            let db = DB::new_in_memory()?;
+            assert!(db.no_open_questions()?);
+            db.insert(1, "nan", "0", vec!["1", "2", "3"])?;
+            db.update_count_correct_answers(1, 3)?;
+            assert!(db.no_open_questions()?);
+            db.update_count_correct_answers(1, 2)?;
+            assert!(!db.no_open_questions()?);
             Ok(())
       }
 }
