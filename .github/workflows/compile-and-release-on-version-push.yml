@@ -18,28 +18,7 @@ jobs:
           changelog: CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  compile-native-and-upload:
-    needs: create-release
-    strategy:
-      matrix:
-        include:
-          - target: i686-pc-windows-msvc
-            os: windows-latest
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - target: aarch64-pc-windows-msvc
-            os: windows-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: taiki-e/upload-rust-binary-action@v1
-        with:
-          bin: ubilerntui
-          target: ${{ matrix.target }}
-          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  compile-cross-and-upload:
+  compile-and-uploard:
     needs: create-release
     strategy:
       matrix:
@@ -56,6 +35,12 @@ jobs:
             os: macos-latest
           - target: universal-apple-darwin
             os: macos-latest
+          - target: i686-pc-windows-msvc
+            os: windows-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
+            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -63,5 +48,6 @@ jobs:
         with:
           bin: ubilerntui
           target: ${{ matrix.target }}
+          archive: $bin-$tag-$target
           include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html
           token: ${{ secrets.GITHUB_TOKEN }}
