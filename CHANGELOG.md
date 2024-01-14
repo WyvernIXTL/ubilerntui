@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 
-- Added cargo bloat github action to project.
-
 ## Fixed
 
 - Fixed github detecting `LICENSE-3RD-PARTY.html` as code.
