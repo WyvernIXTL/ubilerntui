@@ -1,9 +1,16 @@
-# ubilerntui
+<div align="center">
 
-Eine Terminal UI, um für die "UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk"-Prüfung zu lernen.
+# `ubilerntui`
+
+**Eine Terminal UI, um für die "UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk"-Prüfung zu lernen.**^
+
+[![dependency status](https://deps.rs/repo/github/WyvernIXTL/ubilerntui/status.svg)](https://deps.rs/repo/github/WyvernIXTL/ubilerntui)
+![Crates.io Version](https://img.shields.io/crates/v/ubilerntui)
+
+</div>
 
 Ein großer Unterschied zu anderen Programmen, die das Gleiche versprechen, ist hier, dass die Fragen direkt eingelesen werden aus der PDF.
-Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden ([zBsp. über duckduckgo](https://duckduckgo.com/?q=%2BUBI+Fragenkatalog+WSV+site%3Awsv.de+filetype%3Apdf&t=ffab&ia=web)) und mit diesem Programm automatisch parsen. Mehr dazu unter [Benutzung](#benutzung)
+Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden ([zBsp. über duckduckgo](https://duckduckgo.com/?q=%2BUBI+Fragenkatalog+WSV+site%3Awsv.de+filetype%3Apdf&t=ffab&ia=web)) und mit diesem Programm automatisch parsen. Mehr dazu unter [Benutzung](#benutzung).
 
 ![Selektor](./images/selector.png "Auswählen der Antwort")
 
@@ -13,6 +20,14 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 ```
 cargo install ubilerntui
 ```
+
+### Prebuilts
+Für:
+- windows
+- linux
+- macos
+
+Auf der [Release Page](https://github.com/WyvernIXTL/ubilerntui/releases).
 
 
 ## Benutzung
@@ -52,6 +67,11 @@ ubilerntui loesche fortschritt
 ```bash
 ubilerntui loesche fragen
 ```
+
+## Lizenz
+
+Lizenziert unter [GNU General Public License v3.0 or later](./LICENSE.txt).
+Diese Software benutzt Crates, welche unter anderen Lizenzen sind. Siehe [3rd Party Lizenzen](./LICENSE-3RD-PARTY.html).
 
 
 ## Screenshots
