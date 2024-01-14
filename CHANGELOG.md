@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed github detecting `LICENSE-3RD-PARTY.html` as code.
 - Fixed github detecting `about.hbs` as code.
+- Fixed Typo in README.
 
 ## Changed
 
