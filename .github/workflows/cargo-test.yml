@@ -1,0 +1,21 @@
+name: check-pull-requests
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test_pull_request:
+    runs-on: ubuntu-latest
+    name: Test Build and Unit Tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Build Project"
+        shell: bash
+        run: "cargo build"
+      - name: "Unit Tests"
+        shell: bash
+        run: "cargo test"
