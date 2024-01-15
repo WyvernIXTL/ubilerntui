@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added automatic testing on pull request.
 - Added install instructions for installing from github directly.
 - Added some colors to cli.
+- Added checksums to releases.
 
 ## Fixed
 
