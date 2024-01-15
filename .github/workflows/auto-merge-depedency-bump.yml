@@ -1,0 +1,23 @@
+name: auto-merge-on-test-success
+
+on:
+  pull_request:
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    name: Testing
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Run Cargo Test"
+        uses: Kristories/cargo-test@v1.0.0
+
+  auto-merge:
+    needs: test_job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+        with:
+          target: minor
+          github-token: ${{ secrets.mytoken }}
