@@ -5,7 +5,7 @@
 **Eine Terminal UI, um für die "UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk"-Prüfung zu lernen.**
 
 [![dependency status](https://deps.rs/repo/github/WyvernIXTL/ubilerntui/status.svg)](https://deps.rs/repo/github/WyvernIXTL/ubilerntui)
-![Crates.io Version](https://img.shields.io/crates/v/ubilerntui)
+[![Crates.io Version](https://img.shields.io/crates/v/ubilerntui)](https://crates.io/crates/ubilerntui)
 
 </div>
 
