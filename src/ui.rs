@@ -16,7 +16,7 @@
  */
 
 
-
+use std::io::Cursor;
 
 use ratatui::{
       prelude::{
@@ -48,7 +48,7 @@ use ratatui::{
 
 use textwrap;
 use once_cell::sync::Lazy;
-use hyphenation::{Language, Standard, Load};
+use hyphenation::{Standard, Load};
 
 use crate::app::{App, QuestionAnswer};
 
@@ -176,7 +176,9 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
       let style_wrong = Style::default().fg(Color::Black).bg(Color::Red);
 
       static TEXTWRAP_DICT: Lazy<textwrap::WordSplitter> = Lazy::new(|| {
-            textwrap::WordSplitter::Hyphenation(Standard::from_embedded(Language::German1996).unwrap())
+            let bytes = include_bytes!("../dictionary/de-1996.standard.bincode");
+            let mut curs = Cursor::new(bytes);
+            textwrap::WordSplitter::Hyphenation(Standard::any_from_reader(&mut curs).unwrap())
       });
 
       let textwrap_options = textwrap::Options::new((area.width - 6).try_into().unwrap()).word_splitter((*TEXTWRAP_DICT).clone());

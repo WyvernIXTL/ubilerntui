@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Typo in README.
 - Fixed crates.io badge not linking to crates.io in README.
 - Fixed cli stating 3rd party licenses can be found in LICENSES.html .
+- Fixed missing attribution to language pattern authors.
 
 ## Changed
 
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI: Renamed "Fragenfortschritt" gauge to "Gesamt-Fragenfortschritt"
 - 3rd party license file is generated on release now.
 - Added spaces for textwrap in answer list.
+- Embed only german dictionary. This saves 3MB roughly.
 
 
 ## [0.1.1] - 2024-01-14

@@ -28,7 +28,7 @@ regex = "1.10.2"
 once_cell = "1.19.0"
 colored = "2.1.0"
 textwrap = {version = "0.16.0", features = ["hyphenation"]}
-hyphenation = { version = "0.8.4", features = ["embed_all"] }
+hyphenation = "0.8.4"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
