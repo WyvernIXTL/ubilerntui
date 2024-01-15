@@ -188,7 +188,7 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
                         let mut s_string: String = "".to_owned();
                         for s_elem in s_vec.iter().take(s_vec.len()-1) {
                               s_string.push_str(s_elem);
-                              s_string.push_str("\n");
+                              s_string.push_str("\n   ");
                         }
                         s_string.push_str(s_vec.last().unwrap());
                         (s_string, s_vec.len())

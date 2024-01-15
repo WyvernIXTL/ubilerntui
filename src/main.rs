@@ -91,7 +91,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-For detailed licensing of libraries please look at LICENSES.html",
+For detailed licensing of libraries please look at LICENSE-3RD-PARTY.html,
+which this project was distributed with.",
 env!("CARGO_PKG_NAME"), env!("CARGO_PKG_AUTHORS")));
 
 
@@ -170,11 +171,15 @@ fn main() -> Result<()> {
                   }
 
                   if db.is_empty()? {
-                        println!("Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:");
+                        println!("{}", "Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:".yellow());
                         commands.print_long_help()?;
                   } else if db.no_open_questions()? {
-                        println!("Sie haben bereits alle Fragen gelernt! 
-                        Sie können diese nochmal lernen via ubilerntui loesche fortschritt.");
+                        println!(
+                              "{}\n{} {}.", 
+                              "Sie haben bereits alle Fragen gelernt!".green(),
+                              "Sie können diese nochmal lernen via",
+                              "ubilerntui loesche fortschritt".yellow()
+                        );
                         commands.print_help()?;
                   } else {
                         start_learn_tui(entered_alternative_mode, &db)?;

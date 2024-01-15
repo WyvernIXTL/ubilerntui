@@ -22,6 +22,8 @@ use ratatui::widgets::ListState;
 
 use crossterm::event::KeyCode::{self, Char};
 
+use colored::*;
+
 use crate::app::App;
 use crate::event::EventType;
 use crate::db::DB;
@@ -52,7 +54,7 @@ pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
                                     app.question_answer = q;
                                     app.question_answer.scramble();
                               } else {
-                                    println!("Glückwunsch! Du hast alle Fragen gelernt!");
+                                    println!("{}", "Glückwunsch! Du hast alle Fragen gelernt!".green());
                                     app.exit = true;
                               }
                         },

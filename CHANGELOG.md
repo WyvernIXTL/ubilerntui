@@ -11,19 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added automatic github dependabot updates.
 - Added automatic testing on pull request.
+- Added install instructions for installing from github directly.
+- Added some colors to cli.
 
 ## Fixed
 
 - Fixed github detecting `LICENSE-3RD-PARTY.html` as code.
 - Fixed github detecting `about.hbs` as code.
 - Fixed Typo in README.
-- Fixed crates.io badge not linking to crates.io .
+- Fixed crates.io badge not linking to crates.io in README.
+- Fixed cli stating 3rd party licenses can be found in LICENSES.html .
 
 ## Changed
 
 - Made github action `compile-and-release-on-version-push.yml` more streamlined.
 - UI: Renamed "Fragenfortschritt" gauge to "Gesamt-Fragenfortschritt"
 - 3rd party license file is generated on release now.
+- Added spaces for textwrap in answer list.
 
 
 ## [0.1.1] - 2024-01-14

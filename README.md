@@ -20,6 +20,10 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 ```
 cargo install ubilerntui
 ```
+Oder für die neuesten Abhängigkeiten:
+```
+cargo install --git https://github.com/WyvernIXTL/ubilerntui.git
+```
 
 ### Prebuilts
 Für:
