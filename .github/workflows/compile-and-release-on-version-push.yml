@@ -71,5 +71,5 @@ jobs:
           bin: ubilerntui
           target: ${{ matrix.target }}
           archive: $bin-$tag-$target
-          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html
+          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html,./dictionary/LICENSE-DICTIONARY.txt
           token: ${{ secrets.GITHUB_TOKEN }}

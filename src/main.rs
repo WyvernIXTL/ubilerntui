@@ -92,6 +92,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 For detailed licensing of libraries please look at LICENSE-3RD-PARTY.html,
+which this project was distributed with.
+
+This software uses Hyphenation patterns for German licensed under MIT.
+Copyright notice and license can be found in LICENSE-DICTIONARY.txt,
 which this project was distributed with.",
 env!("CARGO_PKG_NAME"), env!("CARGO_PKG_AUTHORS")));
 
