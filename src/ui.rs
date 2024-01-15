@@ -184,13 +184,13 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
       let textwrap_options = textwrap::Options::new((area.width - 6).try_into().unwrap()).word_splitter((*TEXTWRAP_DICT).clone());
 
       macro_rules! wrap_text_count {
-            ($s:expr) => {
+            ($line_end:literal $s:expr) => {
                   {
                         let s_vec = textwrap::wrap($s, &textwrap_options);
                         let mut s_string: String = "".to_owned();
                         for s_elem in s_vec.iter().take(s_vec.len()-1) {
                               s_string.push_str(s_elem);
-                              s_string.push_str("\n   ");
+                              s_string.push_str($line_end);
                         }
                         s_string.push_str(s_vec.last().unwrap());
                         (s_string, s_vec.len())
@@ -200,11 +200,11 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
 
       macro_rules! wrap_text {
             ($s:expr) => {
-                  wrap_text_count!($s).0
+                  wrap_text_count!("\n   " $s).0
             };
       }
 
-      let (question_str, question_line_breaks)= wrap_text_count!(q.question.as_str());
+      let (question_str, question_line_breaks)= wrap_text_count!("\n" q.question.as_str());
       let question = Paragraph::new(question_str)
             .block(Block::default()
             .borders(Borders::LEFT | Borders::RIGHT | Borders::TOP)

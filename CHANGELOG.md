@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 3rd party license file is generated on release now.
 - Added spaces for textwrap in answer list.
 - Embed only german dictionary. This saves 3MB roughly.
+- Changed screenshots to reflect changes in ui.
 
 
 ## [0.1.1] - 2024-01-14
