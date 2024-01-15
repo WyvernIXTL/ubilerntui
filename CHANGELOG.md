@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 - Made github action `compile-and-release-on-version-push.yml` more streamlined.
+- UI: Renamed "Fragenfortschritt" gauge to "Gesamt-Fragenfortschritt"
 
 
 ## [0.1.1] - 2024-01-14

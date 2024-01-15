@@ -133,7 +133,7 @@ fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usiz
 
       let progress_bar = LineGauge::default()
             .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
-            .label("Fortschritt")
+            .label("Gesamt-Fortschritt")
             .ratio(ratio)
             .gauge_style(Style::new().fg(Color::Green))
             .line_set(symbols::line::THICK);
