@@ -20,7 +20,7 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 ```
 cargo install ubilerntui
 ```
-Oder für die neuesten Abhängigkeiten:
+Oder für Nightly Release:
 ```
 cargo install --git https://github.com/WyvernIXTL/ubilerntui.git
 ```
