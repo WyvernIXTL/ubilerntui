@@ -72,5 +72,5 @@ jobs:
           target: ${{ matrix.target }}
           archive: $bin-$tag-$target
           checksum: sha256
-          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html,./dictionary/LICENSE-DICTIONARY.txt
+          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html,./dictionary/LICENSE-DICTIONARY.txt,CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}

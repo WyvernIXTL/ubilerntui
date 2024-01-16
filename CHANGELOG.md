@@ -7,14 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Fixed
+### Added
+
+- Added install instruction for scoop.
+- Added CHANGELOG.md to be included in future releases.
+
+### Fixed
 
 - Fixed textwrap ignoring padding.
 - Fixed dependabot automerge action.
+- Fixed CHANGELOG.md bad headers.
 
 ## [0.1.2] - 2024-01-16
 
-## Added
+### Added
 
 - Added automatic github dependabot updates.
 - Added automatic testing on pull request.
@@ -22,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added some colors to cli.
 - Added checksums to releases.
 
-## Fixed
+### Fixed
 
 - Fixed github detecting `LICENSE-3RD-PARTY.html` as code.
 - Fixed github detecting `about.hbs` as code.
@@ -31,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed cli stating 3rd party licenses can be found in LICENSES.html .
 - Fixed missing attribution to language pattern authors.
 
-## Changed
+### Changed
 
 - Made github action `compile-and-release-on-version-push.yml` more streamlined.
 - UI: Renamed "Fragenfortschritt" gauge to "Gesamt-Fragenfortschritt"

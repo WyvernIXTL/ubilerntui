@@ -16,13 +16,22 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 
 
 ## Installation
-### Über Cargo
+### Über [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 ```
 cargo install ubilerntui
 ```
 Oder für Nightly Release:
 ```
 cargo install --git https://github.com/WyvernIXTL/ubilerntui.git
+```
+
+
+### Über Package Manager
+
+#### [Scoop](https://scoop.sh/)
+```pwsh
+scoop bucket add stupid-bucket https://github.com/WyvernIXTL/stupid-bucket
+scoop install stupid-bucket/ubilerntui
 ```
 
 ### Prebuilts
