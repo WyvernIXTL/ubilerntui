@@ -181,7 +181,7 @@ fn render_selector_list(frame: &mut Frame, area: Rect, q: &QuestionAnswer, item_
             textwrap::WordSplitter::Hyphenation(Standard::any_from_reader(&mut curs).unwrap())
       });
 
-      let textwrap_options = textwrap::Options::new((area.width - 6).try_into().unwrap()).word_splitter((*TEXTWRAP_DICT).clone());
+      let textwrap_options = textwrap::Options::new((area.width - 9).try_into().unwrap()).word_splitter((*TEXTWRAP_DICT).clone());
 
       macro_rules! wrap_text_count {
             ($line_end:literal $s:expr) => {
