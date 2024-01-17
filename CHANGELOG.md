@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.4]  - 2024-01-17
+
 ### Changed
 
 - Scramble is much better implemented now.
@@ -86,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [cargo about]: https://github.com/EmbarkStudios/cargo-about
 
-[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.0...v0.1.1
