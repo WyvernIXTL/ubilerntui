@@ -16,7 +16,7 @@
  */
 
 
-use rand::thread_rng;
+use rand::{thread_rng, rngs::ThreadRng, RngCore};
 use rand::seq::SliceRandom;
 
 use ratatui::widgets::ListState;
@@ -45,7 +45,8 @@ pub struct App {
       pub item_list_state: ListState,
       pub question_answer: QuestionAnswer,
       pub total_progress: usize,
-      pub total_question_count: usize
+      pub total_question_count: usize,
+      pub rng: ThreadRng
 }
 
 impl App {
@@ -54,7 +55,7 @@ impl App {
       /// Takes `total_progress` which is the sum of all correct trys of the user.
       /// Takes `total_question_count` which is the count of questions * 3.
       pub fn new(question_answer: QuestionAnswer, total_progress: usize, total_question_count: usize) -> Self {
-            Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer, total_progress, total_question_count}
+            Self { exit: false, item_list_state: ListState::default(), question_answer: question_answer, total_progress, total_question_count, rng: thread_rng() }
       }
 }
 
@@ -93,15 +94,20 @@ impl QuestionAnswer {
       /// Scramble right and wrong answers.
       /// 
       /// `right_answer` always points at the index with the right answer in `possible_answers`.
-      pub fn scramble(&mut self) {
-            let mut nums: Vec<usize> = (0..4).collect();
-            nums.shuffle(&mut thread_rng());
+      pub fn scramble<R: RngCore>(&mut self, rng: &mut R) {
+            let mut answers: Vec<(bool, &String)> = self.possible_answers.iter().enumerate().map(|(i, s)| {
+                  (i == self.right_answer, s)
+            }).collect();
 
-            for i in 0..self.possible_answers.len() {
-                  if i == self.right_answer {
-                        self.right_answer = nums[i];
+            answers.shuffle(rng);
+
+            let mut shuffled_answers = vec![];
+            for (i, (b, s)) in answers.iter().enumerate() {
+                  if *b {
+                        self.right_answer = i;
                   }
-                  self.possible_answers.swap(i, nums[i]);
+                  shuffled_answers.push((**s).clone());
             }
+            self.possible_answers = shuffled_answers;
       }
 }

@@ -234,7 +234,7 @@ fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result
             db.get_total_progress()?, 
             db.get_total_question_count()?
       );
-      app.question_answer.scramble();
+      app.question_answer.scramble(&mut app.rng);
 
 
       entered_alternative_mode.swap(true, Ordering::Relaxed);

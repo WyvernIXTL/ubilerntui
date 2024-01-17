@@ -52,7 +52,7 @@ pub fn update(event: EventType, app: &mut App, db: &DB) -> Result<()> {
                               app.item_list_state.select(None);
                               if let Ok(q) = db.get_random() {
                                     app.question_answer = q;
-                                    app.question_answer.scramble();
+                                    app.question_answer.scramble(&mut app.rng);
                               } else {
                                     println!("{}", "Glückwunsch! Du hast alle Fragen gelernt!".green());
                                     app.exit = true;
