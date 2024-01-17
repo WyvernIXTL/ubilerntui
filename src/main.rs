@@ -74,6 +74,7 @@ use argparsing::commands_and_flags;
 const LOG_DIR_NAME: &str = "logs";
 const DB_DIR_NAME: &str = "db";
 const FPS: u64 = 120;
+const QUESTIONS_COUNT: usize = 130;
 
 const LICENSE_NOTICE: Lazy<String> = Lazy::new(|| format!("{}
 Copyright (C) 2024 {}
@@ -136,8 +137,15 @@ fn main() -> Result<()> {
                         db.insert_tuple(q)?;
                         count += 1;
                   }
-                  let res_msg = format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
+                  let res_msg = format!("{count}/{QUESTIONS_COUNT} Fragen erfolgreich aus der PDF-Datei geladen.").green();
                   println!("{}", res_msg);
+                  if count < QUESTIONS_COUNT {
+                        println!("{}", "Zu wenige Fragen wurden geladen! 
+                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versuch haben zu laden.".yellow());
+                  } else if count > QUESTIONS_COUNT {
+                        println!("{}", "Zu viele Fragen wurden geladen! 
+                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versuch haben zu laden.".yellow());
+                  }
             },
             Some(("loesche", sub_matches)) => {
                   match (*sub_matches).subcommand() {
