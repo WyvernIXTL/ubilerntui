@@ -83,7 +83,7 @@ impl QuestionAnswer {
       pub fn new<S: ToString>(id: usize, question: S, possible_answers: Vec<S>, right_answer: usize) -> Self {
             Self {
                   id: id,
-                  question: question.to_string(), 
+                  question: question.to_string(),
                   possible_answers: possible_answers.iter().map(|s| s.to_string()).collect(), 
                   right_answer: right_answer, 
                   user_answer: None,
@@ -95,14 +95,13 @@ impl QuestionAnswer {
       /// 
       /// `right_answer` always points at the index with the right answer in `possible_answers`.
       pub fn scramble<R: RngCore>(&mut self, rng: &mut R) {
-            let mut index_vec: [usize; 4] = [0, 1, 2, 3];
+            let mut index_vec: Vec<usize> = (0..self.possible_answers.len()).collect();
             index_vec.shuffle(rng);
-            self.possible_answers = vec![
-                  self.possible_answers[index_vec[0]].clone(),
-                  self.possible_answers[index_vec[1]].clone(),
-                  self.possible_answers[index_vec[2]].clone(),
-                  self.possible_answers[index_vec[3]].clone(),
-            ];
+
+            self.possible_answers = (0..self.possible_answers.len())
+                  .map(|i| self.possible_answers[index_vec[i]].clone())
+                  .collect();
+
             self.right_answer = index_vec.iter().position(|&i| i == self.right_answer).unwrap();
       }
 }
@@ -115,11 +114,29 @@ mod tests {
 
       #[test]
       fn test_scramble() {
-            let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "1", "1"], 0);
+            let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "2", "3"], 0);
             let mut rng = thread_rng();
             for _ in 0..10 {
                   q.scramble(&mut rng);
                   assert_eq!("0", q.possible_answers[q.right_answer]);
             }
+            assert!(q.possible_answers.iter().any(|s| s=="1"));
+            assert!(q.possible_answers.iter().any(|s| s=="2"));
+            assert!(q.possible_answers.iter().any(|s| s=="3"));
+      }
+
+      #[test]
+      fn test_scramble_with_longer_vectors() {
+            let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "2", "3", "4", "5"], 0);
+            let mut rng = thread_rng();
+
+            q.scramble(&mut rng);
+            
+            assert_eq!("0", q.possible_answers[q.right_answer]);
+            assert!(q.possible_answers.iter().any(|s| s=="1"));
+            assert!(q.possible_answers.iter().any(|s| s=="2"));
+            assert!(q.possible_answers.iter().any(|s| s=="3"));
+            assert!(q.possible_answers.iter().any(|s| s=="4"));
+            assert!(q.possible_answers.iter().any(|s| s=="5"));
       }
 }
