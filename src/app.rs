@@ -95,9 +95,6 @@ impl QuestionAnswer {
       /// 
       /// `right_answer` always points at the index with the right answer in `possible_answers`.
       pub fn scramble<R: RngCore>(&mut self, rng: &mut R) {
-            #[cfg(debug_assertions)]
-            let right_answer = self.possible_answers[0].clone();
-
             let mut index_vec: [usize; 4] = [0, 1, 2, 3];
             index_vec.shuffle(rng);
             self.possible_answers = vec![
@@ -106,7 +103,23 @@ impl QuestionAnswer {
                   self.possible_answers[index_vec[2]].clone(),
                   self.possible_answers[index_vec[3]].clone(),
             ];
-            self.right_answer = index_vec.iter().position(|&i| i == 0).unwrap();
-            debug_assert_eq!(self.possible_answers[self.right_answer], right_answer);
+            self.right_answer = index_vec.iter().position(|&i| i == self.right_answer).unwrap();
+      }
+}
+
+
+#[cfg(test)]
+mod tests {
+      use super::*;
+      use pretty_assertions::assert_eq;
+
+      #[test]
+      fn test_scramble() {
+            let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "1", "1"], 0);
+            let mut rng = thread_rng();
+            for _ in 0..10 {
+                  q.scramble(&mut rng);
+                  assert_eq!("0", q.possible_answers[q.right_answer]);
+            }
       }
 }
