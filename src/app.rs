@@ -95,19 +95,18 @@ impl QuestionAnswer {
       /// 
       /// `right_answer` always points at the index with the right answer in `possible_answers`.
       pub fn scramble<R: RngCore>(&mut self, rng: &mut R) {
-            let mut answers: Vec<(bool, &String)> = self.possible_answers.iter().enumerate().map(|(i, s)| {
-                  (i == self.right_answer, s)
-            }).collect();
+            #[cfg(debug_assertions)]
+            let right_answer = self.possible_answers[0].clone();
 
-            answers.shuffle(rng);
-
-            let mut shuffled_answers = vec![];
-            for (i, (b, s)) in answers.iter().enumerate() {
-                  if *b {
-                        self.right_answer = i;
-                  }
-                  shuffled_answers.push((**s).clone());
-            }
-            self.possible_answers = shuffled_answers;
+            let mut index_vec: [usize; 4] = [0, 1, 2, 3];
+            index_vec.shuffle(rng);
+            self.possible_answers = vec![
+                  self.possible_answers[index_vec[0]].clone(),
+                  self.possible_answers[index_vec[1]].clone(),
+                  self.possible_answers[index_vec[2]].clone(),
+                  self.possible_answers[index_vec[3]].clone(),
+            ];
+            self.right_answer = index_vec.iter().position(|&i| i == 0).unwrap();
+            debug_assert_eq!(self.possible_answers[self.right_answer], right_answer);
       }
 }
