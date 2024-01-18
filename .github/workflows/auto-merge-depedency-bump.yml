@@ -1,6 +1,5 @@
-name: auto-merge-on-dependency-bump
 
-name: Dependabot auto-merge
+name: auto-merge-on-dependency-bump
 on: 
   pull_request:
 
