@@ -29,7 +29,7 @@ cargo install --git https://github.com/WyvernIXTL/ubilerntui.git
 ### Über Package Manager
 
 #### [Scoop](https://scoop.sh/)
-```pwsh
+```
 scoop bucket add stupid-bucket https://github.com/WyvernIXTL/stupid-bucket
 scoop install stupid-bucket/ubilerntui
 ```
