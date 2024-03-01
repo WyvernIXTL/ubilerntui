@@ -26,7 +26,7 @@ pdf-extract = "0.7.4"
 regex = "1.10.3"
 once_cell = "1.19.0"
 colored = "2.1.0"
-textwrap = {version = "0.16.0", features = ["hyphenation"]}
+textwrap = {version = "0.16.1", features = ["hyphenation"]}
 hyphenation = "0.8.4"
 
 [dev-dependencies]
