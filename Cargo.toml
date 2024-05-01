@@ -19,7 +19,7 @@ tracing-error = "0.2.0"
 chrono = "0.4.34"
 crossterm = "0.27.0"
 ratatui = "0.26.1"
-rusqlite = {version = "0.30.0", features = ["bundled"]}
+rusqlite = {version = "0.31.0", features = ["bundled"]}
 rand = "0.8.5"
 clap = "4.5.4"
 pdf-extract = "0.7.5"
