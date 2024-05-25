@@ -1,12 +1,17 @@
 name: ubilerntui
 version: git
-summary: Eine Terminal UI, um für die "UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk"-Prüfung zu lernen.
+summary: UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk-Prüfung Lern-Terminal-UI
 description: |
   Ein großer Unterschied zu anderen Programmen, die das Gleiche versprechen, ist hier, dass die Fragen direkt eingelesen werden aus der PDF.
   Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden und mit diesem Programm automatisch parsen.
 
+website: https://github.com/WyvernIXTL/ubilerntui
+issues: https://github.com/WyvernIXTL/ubilerntui/issues
+grade: stable
+license: GPL-3.0-or-later
+
 base: core22
-confinement: devmode
+confinement: strict
 
 parts:
   ubilerntui:
