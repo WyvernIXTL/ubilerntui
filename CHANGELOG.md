@@ -7,9 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.1.5] - 2024-05-25
+
 ### Added
 
 - Added a warning in case too many or too few questions were loaded.
+- Added snap package support.
+- Added `--third-party-licenses`.
+
+
+### Changed
+
+- `--license` flag prints all licenses and dependencies.
+- Switched to [3pl](https://github.com/ankane/cargo-3pl) license scanner.
+
+
+### Removed
+
+- Removed `cargo about` ci.
 
 
 ## [0.1.4]  - 2024-01-17
@@ -93,7 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [cargo about]: https://github.com/EmbarkStudios/cargo-about
 
-[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.1...v0.1.2

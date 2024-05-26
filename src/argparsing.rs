@@ -16,7 +16,7 @@
  */
 
 
-use clap::{Command, arg};
+use clap::{Command, arg, Arg, ArgAction};
 use std::env;
 
 use once_cell::sync::Lazy;
@@ -51,7 +51,8 @@ pub fn commands_and_flags() -> Command {
       .long_about(&*LONG_HELP)
       .args([
             arg!(--license "Prints license information."),
-            arg!(--version "Prints version information.")
+            arg!(--version "Prints version information."),
+            Arg::new("third-party-licenses").long("third-party-licenses").help("Prints third party licenses.").action(ArgAction::SetTrue),
       ])
       .subcommands([
             Command::new("lade")

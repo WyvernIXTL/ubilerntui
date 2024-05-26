@@ -18,26 +18,32 @@ jobs:
           changelog: CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  cargo-about:
+  cargo-3pl:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile Cargo About
+      - name: Compile Cargo 3pl
         shell: bash
-        run: "cargo install --locked cargo-about"
+        run: "cargo install cargo-3pl"
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
       - name: Generate 3rd Party Licenses
         shell: bash
-        run: "cargo about generate about.hbs > LICENSE-3RD-PARTY.html"
+        run: "cargo 3pl > ./LICENSE-3RD-PARTY.txt"
+      - name: Add dict license to 3r party licenses
+        shell: bash
+        run: "cat ./dictionary/LICENSE-DICTIONARY.txt >> ./LICENSE-3RD-PARTY.txt"
       - name: Upload as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: 3rd-party-licenses-artifact
-          path: ./LICENSE-3RD-PARTY.html
+          path: ./LICENSE-3RD-PARTY.txt
           if-no-files-found: error
           retention-days: 1
 
   compile-and-upload:
-    needs: [create-release, cargo-about]
+    needs: [create-release, cargo-3pl]
     strategy:
       matrix:
         include:
@@ -62,6 +68,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
       - name: Download 3rd Party Licenses
         uses: actions/download-artifact@v4
         with:
@@ -72,5 +81,19 @@ jobs:
           target: ${{ matrix.target }}
           archive: $bin-$tag-$target
           checksum: sha256
-          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.html,./dictionary/LICENSE-DICTIONARY.txt,CHANGELOG.md
+          include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.txt,CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  package-and-release-snap:
+    needs: [cargo-3pl]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: snapcore/action-build@v1
+        id: snapbuild
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.snapbuild.outputs.snap }}
+          release: stable

@@ -92,12 +92,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-For detailed licensing of libraries please look at LICENSE-3RD-PARTY.html,
-which this project was distributed with.
-
-This software uses Hyphenation patterns for German licensed under MIT.
-Copyright notice and license can be found in LICENSE-DICTIONARY.txt,
-which this project was distributed with.",
+For detailed licensing of libraries please look at LICENSE-3RD-PARTY.txt,
+which this project was distributed with, or use the `--third-party-licenses` flag.",
 env!("CARGO_PKG_NAME"), env!("CARGO_PKG_AUTHORS")));
 
 
@@ -178,6 +174,13 @@ fn main() -> Result<()> {
                   if let Some(license_requested) = matches.get_one::<bool>("license") {
                         if *license_requested {
                               println!("{}", &*LICENSE_NOTICE);
+                              return Ok(());
+                        }
+                  }
+                  if let Some(license_requested) = matches.get_one::<bool>("third-party-licenses") {
+                        if *license_requested {
+                              let third_party_licenses = include_str!("../LICENSE-3RD-PARTY.txt");
+                              println!("{}", &*third_party_licenses);
                               return Ok(());
                         }
                   }

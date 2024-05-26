@@ -84,7 +84,7 @@ ubilerntui loesche fragen
 ## Lizenz
 
 Lizenziert unter [GNU General Public License v3.0 or later](./LICENSE.txt).
-Diese Software benutzt Crates, welche unter anderen Lizenzen sind. Siehe [3rd Party Lizenzen](./LICENSE-3RD-PARTY.html) (nur im Release enthalten).
+Diese Software benutzt Crates, welche unter anderen Lizenzen sind. Siehe [3rd Party Lizenzen](./LICENSE-3RD-PARTY.txt) (nur im Release enthalten).
 Desweiteren benutzt diese Software ein `TeX-Trennmuster` der `Deutschsprachige Trennmustermannschaft` welches durch/in [hyphenation](https://github.com/tapeinosyne/hyphenation) enkodiert worden ist und der MIT Lizenz obliegt.
 
 
