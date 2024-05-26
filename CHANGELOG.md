@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a warning in case too many or too few questions were loaded.
 - Added snap package support.
 - Added `--third-party-licenses`.
+- Added deb packaging via [cargo-deb](https://github.com/kornelski/cargo-deb).
 
 
 ### Changed

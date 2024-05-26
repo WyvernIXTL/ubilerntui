@@ -89,6 +89,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
+      - name: Download 3rd Party Licenses
+        uses: actions/download-artifact@v4
+        with:
+          name: 3rd-party-licenses-artifact
       - uses: snapcore/action-build@v1
         id: snapbuild
       - uses: snapcore/action-publish@v1
@@ -97,3 +104,27 @@ jobs:
         with:
           snap: ${{ steps.snapbuild.outputs.snap }}
           release: stable
+
+  package-and-release-deb:
+    needs: [cargo-3pl]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Cargo Deb
+        shell: bash
+        run: "cargo install cargo-deb"
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
+      - name: Download 3rd Party Licenses
+        uses: actions/download-artifact@v4
+        with:
+          name: 3rd-party-licenses-artifact
+      - name: Compile
+        shell: bash
+        run: "cargo deb -o ./target/debian/ubilerntui-x64.deb"
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./target/debian/ubilerntui-x64.deb
+      

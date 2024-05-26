@@ -5,6 +5,8 @@ edition = "2021"
 authors = ["Adam McKellar"]
 description = "This is a terminal UI for learning for the UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk."
 license = "GPL-3.0-or-later"
+license-file = "./LICENSE.txt"
+readme = "./README.md"
 repository = "https://github.com/WyvernIXTL/ubilerntui"
 keywords = ["lernen", "ubi", "ukw", "binnenschiffahrt", "sprechfunkzeugnis"]
 categories = ["command-line-utilities"]
@@ -31,3 +33,11 @@ hyphenation = "0.8.4"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
+
+[package.metadata.deb]
+maintainer = "Adam McKellar <dev@mckellar.eu>"
+copyright = "2024, Adam McKellar"
+changelog = "CHANGELOG.md"
+section = "education"
+priority = "optional"
+

@@ -20,19 +20,30 @@ Sie können entsprechend den neuesten, offiziellen Fragenkatalog online finden (
 ```
 cargo install ubilerntui
 ```
-Oder für Nightly Release:
-```
-cargo install --git https://github.com/WyvernIXTL/ubilerntui.git
-```
 
 
 ### Über Package Manager
 
-#### [Scoop](https://scoop.sh/)
+#### [Scoop](https://scoop.sh/) *(windows)*
 ```
 scoop bucket add stupid-bucket https://github.com/WyvernIXTL/stupid-bucket
 scoop install stupid-bucket/ubilerntui
 ```
+
+
+#### [Snap](https://snapcraft.io/) *(linux)*
+```
+sudo snap install ubilerntui
+```
+
+
+#### Apt *(x64 debian linux)*
+```
+wget https://github.com/WyvernIXTL/ubilerntui/releases/latest/download/ubilerntui-x64.deb
+sudo apt install ./ubilerntui-x64.deb
+rm ./ubilerntui-x64.deb
+```
+
 
 ### Prebuilts
 Für:
