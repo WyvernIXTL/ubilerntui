@@ -35,6 +35,7 @@ scoop install stupid-bucket/ubilerntui
 ```
 sudo snap install ubilerntui
 ```
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/ubilerntui)
 
 
 #### Apt *(x64 debian linux)*
@@ -99,7 +100,13 @@ Diese Software benutzt Crates, welche unter anderen Lizenzen sind. Siehe [3rd Pa
 Desweiteren benutzt diese Software ein `TeX-Trennmuster` der `Deutschsprachige Trennmustermannschaft` welches durch/in [hyphenation](https://github.com/tapeinosyne/hyphenation) enkodiert worden ist und der MIT Lizenz obliegt.
 
 
+## Demo Video
+
+[![asciicast](https://asciinema.org/a/661416.svg)](https://asciinema.org/a/661416)
+
+
 ## Screenshots
+
 ![Richtige Antwort](./images/right-answer.png "Richtige Antwort ausgewählt")
 ![Falsche Antwort](./images/wrong-answer.png "Falsche Antwort ausgewählt")
 
