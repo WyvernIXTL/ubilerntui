@@ -32,6 +32,10 @@ scoop install stupid-bucket/ubilerntui
 
 
 #### [Snap](https://snapcraft.io/) *(linux)*
+
+> [!ERROR]
+> I need to fix this. Thats why its private on snapcraft.
+
 ```
 sudo snap install ubilerntui
 ```
