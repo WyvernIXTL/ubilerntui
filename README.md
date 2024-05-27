@@ -33,7 +33,7 @@ scoop install stupid-bucket/ubilerntui
 
 #### [Snap](https://snapcraft.io/) *(linux)*
 
-> [!ERROR]
+> [!CAUTION]
 > I need to fix this. Thats why its private on snapcraft.
 
 ```
