@@ -21,4 +21,6 @@ parts:
 apps:
   ubilerntui:
     command: bin/ubilerntui
+    plugs:
+      - home
 
