@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2024-05-28
+
+### Added
+
+- Added asciinema video.
+- Added snap badge.
+
+### Changed
+
+- Fixed `license` and `license-file` coexisting.
+- Fixed snap confinement.
+- Fixed error in readme.
+
 
 ## [0.1.5] - 2024-05-25
 
@@ -109,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [cargo about]: https://github.com/EmbarkStudios/cargo-about
 
-[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.2...v0.1.3

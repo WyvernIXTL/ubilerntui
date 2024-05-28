@@ -1,6 +1,6 @@
 [package]
 name = "ubilerntui"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = ["Adam McKellar"]
 description = "This is a terminal UI for learning for the UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk."
