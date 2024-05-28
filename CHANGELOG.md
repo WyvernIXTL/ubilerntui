@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `--license` flag prints all licenses and dependencies.
 - Switched to [3pl](https://github.com/ankane/cargo-3pl) license scanner.
 
 
