@@ -16,6 +16,8 @@ architectures:
     build-for: [amd64]
   - build-on: [arm64, amd64]
     build-for: [arm64]
+  - build-on: [arm64, amd64, riscv64]
+    build-for: [riscv64]
 
 confinement: strict
 

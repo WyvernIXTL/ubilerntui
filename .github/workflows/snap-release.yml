@@ -39,11 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, arm64]
+        arch: [amd64, arm64, riscv64]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-tags: true
+          fetch-depth: 0
       - name: Remove old 3rd Party Licenses
         shell: bash
         run: "rm -f ./LICENSE-3RD-PARTY.txt"
