@@ -42,6 +42,8 @@ jobs:
         arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - name: Remove old 3rd Party Licenses
         shell: bash
         run: "rm -f ./LICENSE-3RD-PARTY.txt"
