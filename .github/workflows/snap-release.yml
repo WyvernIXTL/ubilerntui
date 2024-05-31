@@ -1,0 +1,56 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v[0-9]+.*
+
+jobs:
+  cargo-3pl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile Cargo 3pl
+        shell: bash
+        run: "cargo install cargo-3pl"
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
+      - name: Generate 3rd Party Licenses
+        shell: bash
+        run: "cargo 3pl > ./LICENSE-3RD-PARTY.txt"
+      - name: Add dict license to 3r party licenses
+        shell: bash
+        run: "cat ./dictionary/LICENSE-DICTIONARY.txt >> ./LICENSE-3RD-PARTY.txt"
+      - name: Upload as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3rd-party-licenses-artifact
+          path: ./LICENSE-3RD-PARTY.txt
+          if-no-files-found: error
+          retention-days: 1
+  
+  package-and-release-snap:
+    needs: [cargo-3pl]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove old 3rd Party Licenses
+        shell: bash
+        run: "rm -f ./LICENSE-3RD-PARTY.txt"
+      - name: Download 3rd Party Licenses
+        uses: actions/download-artifact@v4
+        with:
+          name: 3rd-party-licenses-artifact
+      - uses: snapcore/action-build@v1
+        id: snapbuild
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.snapbuild.outputs.snap }}
+          release: stable

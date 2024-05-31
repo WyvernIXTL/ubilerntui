@@ -84,27 +84,6 @@ jobs:
           include: LICENSE.txt,README.md,LICENSE-3RD-PARTY.txt,CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  package-and-release-snap:
-    needs: [cargo-3pl]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Remove old 3rd Party Licenses
-        shell: bash
-        run: "rm -f ./LICENSE-3RD-PARTY.txt"
-      - name: Download 3rd Party Licenses
-        uses: actions/download-artifact@v4
-        with:
-          name: 3rd-party-licenses-artifact
-      - uses: snapcore/action-build@v1
-        id: snapbuild
-      - uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-        with:
-          snap: ${{ steps.snapbuild.outputs.snap }}
-          release: stable
-
   package-and-release-deb:
     needs: [cargo-3pl]
     runs-on: ubuntu-latest
