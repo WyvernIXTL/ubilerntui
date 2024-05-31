@@ -37,6 +37,9 @@ jobs:
   package-and-release-snap:
     needs: [cargo-3pl]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v4
       - name: Remove old 3rd Party Licenses
@@ -48,6 +51,8 @@ jobs:
           name: 3rd-party-licenses-artifact
       - uses: snapcore/action-build@v1
         id: snapbuild
+        with:
+          snapcraft-args: --build-for ${{ matrix.arch }}
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
