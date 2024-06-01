@@ -14,7 +14,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 tracing = {version = "0.1", features = ["release_max_level_info"]}
 tracing-subscriber = {version = "0.3", features = ["json", "env-filter"]}
-color-eyre = "0.6.2"
+color-eyre = "0.6.3"
 directories = "5.0.1"
 tracing-error = "0.2.0"
 chrono = "0.4.38"
