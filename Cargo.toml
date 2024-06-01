@@ -19,7 +19,7 @@ directories = "5.0.1"
 tracing-error = "0.2.0"
 chrono = "0.4.38"
 crossterm = "0.27.0"
-ratatui = "0.26.2"
+ratatui = "0.26.3"
 rusqlite = {version = "0.31.0", features = ["bundled"]}
 rand = "0.8.5"
 clap = "4.5.4"
