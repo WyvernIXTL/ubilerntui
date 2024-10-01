@@ -31,7 +31,7 @@ textwrap = {version = "0.16.1", features = ["hyphenation"]}
 hyphenation = "0.8.4"
 
 [dev-dependencies]
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
 
 [package.metadata.deb]
 maintainer = "Adam McKellar <dev@mckellar.eu>"
