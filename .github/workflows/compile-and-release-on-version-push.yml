@@ -75,7 +75,6 @@ jobs:
           release: stable
 
   package-and-release-deb:
-    needs: [cargo-3pl]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
