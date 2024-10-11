@@ -37,7 +37,8 @@ use tracing::{
 use color_eyre::eyre::Result;
 
 use colored::*;
-use once_cell::sync::Lazy;
+
+use license_fetcher::get_package_list_macro;
 
 pub mod logging;
 use logging::start_tracing;
@@ -75,26 +76,6 @@ const LOG_DIR_NAME: &str = "logs";
 const DB_DIR_NAME: &str = "db";
 const FPS: u64 = 120;
 const QUESTIONS_COUNT: usize = 130;
-
-const LICENSE_NOTICE: Lazy<String> = Lazy::new(|| format!("{}
-Copyright (C) 2024 {}
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-For detailed licensing of libraries please look at LICENSE-3RD-PARTY.txt,
-which this project was distributed with, or use the `--third-party-licenses` flag.",
-env!("CARGO_PKG_NAME"), env!("CARGO_PKG_AUTHORS")));
 
 
 /// Entry point of program.
@@ -173,14 +154,8 @@ fn main() -> Result<()> {
                   }
                   if let Some(license_requested) = matches.get_one::<bool>("license") {
                         if *license_requested {
-                              println!("{}", &*LICENSE_NOTICE);
-                              return Ok(());
-                        }
-                  }
-                  if let Some(license_requested) = matches.get_one::<bool>("third-party-licenses") {
-                        if *license_requested {
-                              let third_party_licenses = include_str!("../LICENSE-3RD-PARTY.txt");
-                              println!("{}", &*third_party_licenses);
+                              let packages = get_package_list_macro!();
+                              println!("{}", packages);
                               return Ok(());
                         }
                   }
