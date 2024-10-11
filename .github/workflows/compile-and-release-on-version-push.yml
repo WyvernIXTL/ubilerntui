@@ -4,24 +4,12 @@ permissions:
   contents: write
 
 on:
-  push:
-    tags:
-      - v[0-9]+.*
+  release:
+    types: [published]
 
 jobs:
-  create-release:
-    permissions:
-        contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: softprops/action-gh-release@v2
-
   compile-and-upload:
-    permissions:
-      contents: write
     continue-on-error: true
-    needs: [create-release]
     strategy:
       matrix:
         include:
@@ -51,15 +39,15 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
       - name: Zip Binary (windows)
         if: runner.os == 'Windows'
-        run: Compress-Archive -Path ./target/${{ matrix.target }}/release/${{ env.NAME }}.exe -DestinationPath ${{ env.NAME }}-${{ matrix.target }}.zip
+        run: 7z a ubilerntui-${{ matrix.target }}.7z ./target/${{ matrix.target }}/release/ubilerntui.exe ./CHANGELOG.md ./README.md
       - name: Tar Binary (linux/mac)
         if: runner.os != 'Windows'
-        run: tar -cJf ${{ env.NAME }}-${{ matrix.target }}.tar.xz ./target/${{ matrix.target }}/release/${{ env.NAME }}
+        run: tar -cJf ubilerntui-${{ matrix.target }}.tar.xz ./target/${{ matrix.target }}/release/ubilerntui ./CHANGELOG.md ./README.md
       - name: Upload Binary
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ${{ env.NAME }}*
+            ubilerntui*
 
   package-and-release-snap:
     runs-on: ubuntu-latest
