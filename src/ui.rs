@@ -135,7 +135,7 @@ fn render_total_progress(frame: &mut Frame, area: Rect, prog: usize, total: usiz
             .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
             .label("Gesamt-Fortschritt")
             .ratio(ratio)
-            .gauge_style(Style::new().fg(Color::Green))
+            .filled_style(Style::new().fg(Color::Green))
             .line_set(symbols::line::THICK);
 
       frame.render_widget(progress_bar, area);
@@ -163,7 +163,7 @@ fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
             .block(Block::default().borders(Borders::NONE).padding(Padding::horizontal(3)))
             .label("Fragen-Fortschritt")
             .ratio(progress)
-            .gauge_style(Style::new().fg(fg_color))
+            .filled_style(Style::new().fg(fg_color))
             .line_set(symbols::line::THICK);
 
       frame.render_widget(progress_bar, area);
