@@ -668,9 +668,9 @@ dependencies = [
 
 [[package]]
 name = "license-fetcher"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5bb75ad8772b52bd4f216d3f55cbdf88ff6c64bd3c19b74ad39e48557eed176"
+checksum = "904bd80dd046aa1c625ddfd81c88a85a54ff3ca0ddcce0ca1ad9c8d7b6db185d"
 dependencies = [
  "bincode 2.0.0-rc.3",
  "directories",
@@ -1517,7 +1517,7 @@ dependencies = [
 
 [[package]]
 name = "ubilerntui"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "chrono",
  "clap",
@@ -1703,7 +1703,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1735,15 +1735,6 @@ name = "windows-sys"
 version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d"
-dependencies = [
- "windows-targets 0.52.6",
-]
-
-[[package]]
-name = "windows-sys"
-version = "0.59.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e38bc4d79ed67fd075bcc251a1c39b32a1776bbe92e5bef1f0bf1f8c531853b"
 dependencies = [
  "windows-targets 0.52.6",
 ]

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2024-10-11
+
+### Fixed
+
+* Missing MIT license for dictionary.
+
+### Changed
+
+* Upgraded to `license-fetcher == 0.5.0`.
+
+
 ## [0.1.7] - 2024-10-11
 
 ### Changed
@@ -130,8 +141,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [cargo about]: https://github.com/EmbarkStudios/cargo-about
 
-[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.9...HEAD
-[0.1.9]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.6...v0.1.9
+[Unreleased]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/WyvernIXTL/ubilerntui/compare/v0.1.3...v0.1.4
