@@ -45,15 +45,11 @@ macro_rules! to_trimmed_string {
       };
 }
 
-/// Uses regex to parse out all questions from string.
-pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>> {
-      static REG: Lazy<Regex> = Lazy::new(|| Regex::new(
-            r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"
-      ).unwrap());
-      let res = REG.captures_iter(&s).map(|caps| {
+fn extract_questions(reg: &Regex, s: &str) -> Vec<(usize, String, String, Vec<String>)> {
+      reg.captures_iter(s).map(|caps| {
             let id = usize::from_str_radix(&caps["id"], 10).unwrap();
             (
-                  id, 
+                  id,
                   to_trimmed_string!(&caps["question"]),
                   to_trimmed_string!(&caps["a"]),
                   vec![
@@ -62,9 +58,30 @@ pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>>
                         to_trimmed_string!(&caps["d"])
                   ]
             )
-      }).collect();
+      }).collect()
+}
 
-      Ok(res)
+/// Uses regex to parse out all questions from string.
+/// Supports two formats:
+/// - UBI/Binnenschifffahrt: answers labeled a), b), c), d) with inline [id] bracket
+/// - SRC/UKW-See: answers labeled 1), 2), 3), 4)
+pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>> {
+      // UBI format: a), b), c), d) with [id] bracket inline in question
+      static REG_UBI: Lazy<Regex> = Lazy::new(|| Regex::new(
+            r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"
+      ).unwrap());
+
+      // SRC format: 1), 2), 3), 4) — [id] bracket position is inconsistent
+      static REG_SRC: Lazy<Regex> = Lazy::new(|| Regex::new(
+            r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)1\)(?P<a>.*?)2\)(?P<b>.*?)3\)(?P<c>.*?)4\)(?P<d>.*?)\n$"
+      ).unwrap());
+
+      let ubi_results = extract_questions(&REG_UBI, &s);
+      if !ubi_results.is_empty() {
+            return Ok(ubi_results);
+      }
+
+      Ok(extract_questions(&REG_SRC, &s))
 }
 
 
