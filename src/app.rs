@@ -15,7 +15,7 @@ use rand::seq::SliceRandom;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use rand::{rngs::ThreadRng, thread_rng, RngCore};
+use rand::{rng, rngs::ThreadRng, RngCore};
 
 use ratatui::widgets::ListState;
 
@@ -62,7 +62,7 @@ impl App {
             question_answer: question_answer,
             total_progress,
             total_question_count,
-            rng: thread_rng(),
+            rng: rng(),
         }
     }
 }
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn test_scramble() {
         let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "2", "3"], 0);
-        let mut rng = thread_rng();
+        let mut rng = rng();
         for _ in 0..10 {
             q.scramble(&mut rng);
             assert_eq!("0", q.possible_answers[q.right_answer]);
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn test_scramble_with_longer_vectors() {
         let mut q = QuestionAnswer::new(0, "nan", vec!["0", "1", "2", "3", "4", "5"], 0);
-        let mut rng = thread_rng();
+        let mut rng = rng();
 
         q.scramble(&mut rng);
 
