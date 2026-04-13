@@ -14,51 +14,48 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-
 use std::fs::read;
 use std::path::PathBuf;
 
 use color_eyre::eyre::Result;
+use once_cell::sync::Lazy;
 use pdf_extract::extract_text_from_mem;
 use regex::Regex;
-use once_cell::sync::Lazy;
-
 
 /// Uses [pdf_extract] crate to [extract](pdf_extract::extract_text_from_mem) PDF read on location of `path`.
 pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
-      let bytes = read(path)?;
-      Ok( extract_text_from_mem(&bytes)? )
+    let bytes = read(path)?;
+    Ok(extract_text_from_mem(&bytes)?)
 }
 
 /// Trims, replaces bad line breaks and multiple spaces withing string.
 macro_rules! to_trimmed_string {
-      ($e:expr) => {
-            {
-                  let s = ($e).trim();
-                  let s = s.replace("-\n", "");
-                  let s = s.replace("\n", " ");
-                  let s = s.replace("   ", " ");
-                  let s = s.replace("  ", " ");
-                  String::from(s)
-            }
-      };
+    ($e:expr) => {{
+        let s = ($e).trim();
+        let s = s.replace("-\n", "");
+        let s = s.replace("\n", " ");
+        let s = s.replace("   ", " ");
+        let s = s.replace("  ", " ");
+        String::from(s)
+    }};
 }
 
 fn extract_questions(reg: &Regex, s: &str) -> Vec<(usize, String, String, Vec<String>)> {
-      reg.captures_iter(s).map(|caps| {
+    reg.captures_iter(s)
+        .map(|caps| {
             let id = usize::from_str_radix(&caps["id"], 10).unwrap();
             (
-                  id,
-                  to_trimmed_string!(&caps["question"]),
-                  to_trimmed_string!(&caps["a"]),
-                  vec![
-                        to_trimmed_string!(&caps["b"]),
-                        to_trimmed_string!(&caps["c"]),
-                        to_trimmed_string!(&caps["d"])
-                  ]
+                id,
+                to_trimmed_string!(&caps["question"]),
+                to_trimmed_string!(&caps["a"]),
+                vec![
+                    to_trimmed_string!(&caps["b"]),
+                    to_trimmed_string!(&caps["c"]),
+                    to_trimmed_string!(&caps["d"]),
+                ],
             )
-      }).collect()
+        })
+        .collect()
 }
 
 /// Uses regex to parse out all questions from string.
@@ -66,34 +63,36 @@ fn extract_questions(reg: &Regex, s: &str) -> Vec<(usize, String, String, Vec<St
 /// - UBI/Binnenschifffahrt: answers labeled a), b), c), d) with inline [id] bracket
 /// - SRC/UKW-See: answers labeled 1), 2), 3), 4)
 pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>> {
-      // UBI format: a), b), c), d) with [id] bracket inline in question
-      static REG_UBI: Lazy<Regex> = Lazy::new(|| Regex::new(
+    // UBI format: a), b), c), d) with [id] bracket inline in question
+    static REG_UBI: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
             r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)\s+\[(?P<id2>[0-9]{1,3})\].*?a\)(?P<a>.*?)b\)(?P<b>.*?)c\)(?P<c>.*?)d\)(?P<d>.*?)\n$"
-      ).unwrap());
+      ).unwrap()
+    });
 
-      // SRC format: 1), 2), 3), 4) — [id] bracket position is inconsistent
-      static REG_SRC: Lazy<Regex> = Lazy::new(|| Regex::new(
+    // SRC format: 1), 2), 3), 4) — [id] bracket position is inconsistent
+    static REG_SRC: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
             r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)1\)(?P<a>.*?)2\)(?P<b>.*?)3\)(?P<c>.*?)4\)(?P<d>.*?)\n$"
-      ).unwrap());
+      ).unwrap()
+    });
 
-      let ubi_results = extract_questions(&REG_UBI, &s);
-      if !ubi_results.is_empty() {
-            return Ok(ubi_results);
-      }
+    let ubi_results = extract_questions(&REG_UBI, &s);
+    if !ubi_results.is_empty() {
+        return Ok(ubi_results);
+    }
 
-      Ok(extract_questions(&REG_SRC, &s))
+    Ok(extract_questions(&REG_SRC, &s))
 }
-
 
 #[cfg(test)]
 mod tests {
-      use super::*;
-      use pretty_assertions::assert_eq;
+    use super::*;
+    use pretty_assertions::assert_eq;
 
-
-      #[test]
-      fn test_parse_clusterfuck_pdf() -> Result<()> {
-            let test_raw_string = "
+    #[test]
+    fn test_parse_clusterfuck_pdf() -> Result<()> {
+        let test_raw_string = "
 
 128.   q part1
 q part2   [128]
@@ -150,25 +149,43 @@ wrong answer 3 part 2
 
             ";
 
-            let expected = vec![
-                  (128usize, "q part1 q part2".to_owned(), "correct answer".to_owned(), vec!["wrong answer 1".to_owned(), "wrong answer 2".to_owned(), "wrong answer 3".to_owned()]),
-                  (129, "q part1 q part2".to_owned(), "correct answer".to_owned(), vec!["wrong answer 1".to_owned(), "wrong answer 2".to_owned(), "wrong answer 3".to_owned()]),
-                  (
-                        127, 
-                        "q part1 q part2".to_owned(), 
-                        "correct answer part 1 correct answer part 2".to_owned(), 
-                        vec![
-                              "wrong answer 1 part 1 wrong answer 1 part 2 wrong answer 1 part 3".to_owned(), 
-                              "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(), 
-                              "wrong answer 3 part 1 wrong answer 3 part 2".to_owned()
-                              ]
-                  )
-            ];
+        let expected = vec![
+            (
+                128usize,
+                "q part1 q part2".to_owned(),
+                "correct answer".to_owned(),
+                vec![
+                    "wrong answer 1".to_owned(),
+                    "wrong answer 2".to_owned(),
+                    "wrong answer 3".to_owned(),
+                ],
+            ),
+            (
+                129,
+                "q part1 q part2".to_owned(),
+                "correct answer".to_owned(),
+                vec![
+                    "wrong answer 1".to_owned(),
+                    "wrong answer 2".to_owned(),
+                    "wrong answer 3".to_owned(),
+                ],
+            ),
+            (
+                127,
+                "q part1 q part2".to_owned(),
+                "correct answer part 1 correct answer part 2".to_owned(),
+                vec![
+                    "wrong answer 1 part 1 wrong answer 1 part 2 wrong answer 1 part 3".to_owned(),
+                    "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
+                    "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
+                ],
+            ),
+        ];
 
-            let res = parse_pdf(test_raw_string.to_owned())?;
+        let res = parse_pdf(test_raw_string.to_owned())?;
 
-            assert_eq!(res, expected);
+        assert_eq!(res, expected);
 
-            Ok(())
-      }
+        Ok(())
+    }
 }

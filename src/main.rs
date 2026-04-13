@@ -1,9 +1,12 @@
 //! This is a terminal UI for learning for the `UKW-Sprechfunkzeugnis für den Binnenschiffahrtsfunk`.
-//! 
-//! The TUI has capabilities to read and parse the official published PDF (`UBI Fragenkatalog`) 
+//!
+//! The TUI has capabilities to read and parse the official published PDF (`UBI Fragenkatalog`)
 //! and to train each question.
 
-
+use std::env;
+use std::io;
+use std::io::Write;
+use std::path::PathBuf;
 /**
  * ubilerntui
  * Copyright (C) 2024 Adam McKellar
@@ -20,21 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::env;
-use std::path::PathBuf;
-use std::io;
-use std::io::Write;
 
-use tracing::{
-      info, 
-      trace, 
-      trace_span
-};
 use color_eyre::eyre::Result;
+use tracing::{info, trace, trace_span};
 
 use colored::*;
 
@@ -71,132 +64,141 @@ use pdfparser::{parse_pdf, read_pdf_to_string};
 pub mod argparsing;
 use argparsing::commands_and_flags;
 
-
 const LOG_DIR_NAME: &str = "logs";
 const DB_DIR_NAME: &str = "db";
 const FPS: u64 = 120;
 
-
 /// Entry point of program.
 fn main() -> Result<()> {
-      let entered_alternative_mode = Arc::new(AtomicBool::new(false));
-      eyre_term_exit_hook(entered_alternative_mode.clone())?;
+    let entered_alternative_mode = Arc::new(AtomicBool::new(false));
+    eyre_term_exit_hook(entered_alternative_mode.clone())?;
 
-      start_tracing(LOG_DIR_NAME)?;
+    start_tracing(LOG_DIR_NAME)?;
 
-      info!(
-            name = %env!("CARGO_PKG_NAME"),
-            version = %env!("CARGO_PKG_VERSION"),
-            repo = %env!("CARGO_PKG_REPOSITORY"),
-            authors = %env!("CARGO_PKG_AUTHORS"),
-            os = %env::consts::OS,
-            "program_and_env_info"
-      );
+    info!(
+          name = %env!("CARGO_PKG_NAME"),
+          version = %env!("CARGO_PKG_VERSION"),
+          repo = %env!("CARGO_PKG_REPOSITORY"),
+          authors = %env!("CARGO_PKG_AUTHORS"),
+          os = %env::consts::OS,
+          "program_and_env_info"
+    );
 
-      let db = DB::new(DB_DIR_NAME)?;
+    let db = DB::new(DB_DIR_NAME)?;
 
-      let mut commands = commands_and_flags();
-      let matches = commands.clone().get_matches();
+    let mut commands = commands_and_flags();
+    let matches = commands.clone().get_matches();
 
-      match matches.subcommand() {
-            Some(("lade", sub_matches)) => {
-                  if !db.is_empty()? {
-                        if !yn_inquire("Das Laden wird die alten Daten überschreiben. Trotzdem tun?")? {
-                              return Ok(());
-                        }
-                        db.clear()?;
-                  }
-                  let path_str = sub_matches.get_one::<String>("PFAD").expect("required");
-                  let path = PathBuf::from(path_str);
-                  let mut count = 0;
-                  for q in parse_pdf(read_pdf_to_string(path)?)? {
-                        db.insert_tuple(q)?;
-                        count += 1;
-                  }
-                  if count == 0 {
-                        println!("{}", "0 Fragen erfolgreich aus der PDF-Datei geladen.".yellow());
-                        println!("{}", "Zu wenige Fragen wurden geladen!
-                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versuch haben zu laden.".yellow());
-                  } else {
-                        let res_msg = format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
-                        println!("{}", res_msg);
-                  }
-            },
-            Some(("loesche", sub_matches)) => {
-                  match (*sub_matches).subcommand() {
-                        Some(("fragen", _)) => {
-                              if !yn_inquire("Wollen Sie die Fragen wirklich aus der Datenbank löschen?")? {
-                                    return Ok(());
-                              }
-                              db.clear()?;
-                              info!("Deleted data in question table.");
-                              println!("{}", "Fragen erfolgreich aus der Datenbank entfernt.".green());
-                        },
-                        Some(("fortschritt", _)) => {
-                              if !yn_inquire("Wollen Sie den Fortschritt wirklich aus der Datenbank löschen?")? {
-                                    return Ok(());
-                              }
-                              db.clear_progress()?;
-                              info!("Deleted progress in question table.");
-                              println!("{}", "Lern-Fortschritt erfolgreich aus der Datenbank entfernt.".green());
-                        },
-                        _ => unimplemented!()
-                  }
-            },
-            _ => {
-                  if let Some(version_reqested) = matches.get_one::<bool>("version") {
-                        if *version_reqested {
-                              println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
-                              return Ok(());
-                        }
-                  }
-                  if let Some(license_requested) = matches.get_one::<bool>("license") {
-                        if *license_requested {
-                              let packages = get_package_list_macro!();
-                              println!("{}", packages);
-                              return Ok(());
-                        }
-                  }
-
-                  if db.is_empty()? {
-                        println!("{}", "Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:".yellow());
-                        commands.print_long_help()?;
-                  } else if db.no_open_questions()? {
-                        println!(
-                              "{}\n{} {}.", 
-                              "Sie haben bereits alle Fragen gelernt!".green(),
-                              "Sie können diese nochmal lernen via",
-                              "ubilerntui loesche fortschritt".yellow()
-                        );
-                        commands.print_help()?;
-                  } else {
-                        start_learn_tui(entered_alternative_mode, &db)?;
-                  }
+    match matches.subcommand() {
+        Some(("lade", sub_matches)) => {
+            if !db.is_empty()? {
+                if !yn_inquire("Das Laden wird die alten Daten überschreiben. Trotzdem tun?")? {
+                    return Ok(());
+                }
+                db.clear()?;
             }
-      }
-      
-      Ok(())
+            let path_str = sub_matches.get_one::<String>("PFAD").expect("required");
+            let path = PathBuf::from(path_str);
+            let mut count = 0;
+            for q in parse_pdf(read_pdf_to_string(path)?)? {
+                db.insert_tuple(q)?;
+                count += 1;
+            }
+            if count == 0 {
+                println!(
+                    "{}",
+                    "0 Fragen erfolgreich aus der PDF-Datei geladen.".yellow()
+                );
+                println!("{}", "Zu wenige Fragen wurden geladen!
+                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versuch haben zu laden.".yellow());
+            } else {
+                let res_msg =
+                    format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
+                println!("{}", res_msg);
+            }
+        }
+        Some(("loesche", sub_matches)) => match (*sub_matches).subcommand() {
+            Some(("fragen", _)) => {
+                if !yn_inquire("Wollen Sie die Fragen wirklich aus der Datenbank löschen?")? {
+                    return Ok(());
+                }
+                db.clear()?;
+                info!("Deleted data in question table.");
+                println!(
+                    "{}",
+                    "Fragen erfolgreich aus der Datenbank entfernt.".green()
+                );
+            }
+            Some(("fortschritt", _)) => {
+                if !yn_inquire("Wollen Sie den Fortschritt wirklich aus der Datenbank löschen?")? {
+                    return Ok(());
+                }
+                db.clear_progress()?;
+                info!("Deleted progress in question table.");
+                println!(
+                    "{}",
+                    "Lern-Fortschritt erfolgreich aus der Datenbank entfernt.".green()
+                );
+            }
+            _ => unimplemented!(),
+        },
+        _ => {
+            if let Some(version_reqested) = matches.get_one::<bool>("version") {
+                if *version_reqested {
+                    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+                    return Ok(());
+                }
+            }
+            if let Some(license_requested) = matches.get_one::<bool>("license") {
+                if *license_requested {
+                    let packages = get_package_list_macro!();
+                    println!("{}", packages);
+                    return Ok(());
+                }
+            }
+
+            if db.is_empty()? {
+                println!(
+                    "{}",
+                    "Bitte laden Sie das dazugehörige PDF. Mehr dazu in der Anleitung:".yellow()
+                );
+                commands.print_long_help()?;
+            } else if db.no_open_questions()? {
+                println!(
+                    "{}\n{} {}.",
+                    "Sie haben bereits alle Fragen gelernt!".green(),
+                    "Sie können diese nochmal lernen via",
+                    "ubilerntui loesche fortschritt".yellow()
+                );
+                commands.print_help()?;
+            } else {
+                start_learn_tui(entered_alternative_mode, &db)?;
+            }
+        }
+    }
+
+    Ok(())
 }
 
 /// Inquire the user if action should be taken via simple y/n question.
 fn yn_inquire(what: &str) -> Result<bool> {
-      loop {
-            print!("{} {} ", what.yellow(), "Y/n:".yellow());
-            io::stdout().flush()?;
-            let mut s = "".to_owned();
-            io::stdin().read_line(&mut s)?;
-            let s = s.to_lowercase();
-            let s = s.trim();
-            if s == "y" || s == "j" {
-                  return Ok(true);
-            } else if s == "n" {
-                  return Ok(false);
-            }
-      }
+    loop {
+        print!("{} {} ", what.yellow(), "Y/n:".yellow());
+        io::stdout().flush()?;
+        let mut s = "".to_owned();
+        io::stdin().read_line(&mut s)?;
+        let s = s.to_lowercase();
+        let s = s.trim();
+        if s == "y" || s == "j" {
+            return Ok(true);
+        } else if s == "n" {
+            return Ok(false);
+        }
+    }
 }
 
 /// Runs TUI for learning.
-/// 
+///
 /// This function does:
 /// 1. Enter alternative and raw terminal modes.
 /// 2. Spawns thread for capture of user input.
@@ -212,43 +214,38 @@ fn yn_inquire(what: &str) -> Result<bool> {
 /// start_learn_tui(entered_alternative_mode, &db)?;
 /// ```
 fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result<()> {
-      let first_question = db.get_random()?;
-      let mut app = App::new(
-            first_question, 
-            db.get_total_progress()?, 
-            db.get_total_question_count()?
-      );
-      app.question_answer.scramble(&mut app.rng);
+    let first_question = db.get_random()?;
+    let mut app = App::new(
+        first_question,
+        db.get_total_progress()?,
+        db.get_total_question_count()?,
+    );
+    app.question_answer.scramble(&mut app.rng);
 
+    entered_alternative_mode.swap(true, Ordering::Relaxed);
+    let mut term = Tui::new_with_term()?;
+    term.enter()?;
+    trace!("Entered alternative screen mode.");
 
-      entered_alternative_mode.swap(true, Ordering::Relaxed);
-      let mut term = Tui::new_with_term()?;
-      term.enter()?;
-      trace!("Entered alternative screen mode.");
+    let event_handler = event::InputEventHandler::new(FPS);
 
+    let main_span = trace_span!("Main Loop").entered();
 
-      let event_handler = event::InputEventHandler::new(FPS);
+    let mut fps_timer = fpslimiter::FpsTimer::new(FPS);
+    loop {
+        while let Ok(event) = event_handler.receiver.try_recv() {
+            update::update(event, &mut app, &db)?;
+        }
+        if app.exit {
+            break;
+        }
+        term.draw(&mut app)?;
 
-      let main_span = trace_span!("Main Loop").entered();
+        fps_timer.timeout();
+    }
+    main_span.exit();
 
-      let mut fps_timer = fpslimiter::FpsTimer::new(FPS);
-      loop {
-            while let Ok(event) = event_handler.receiver.try_recv() {
-                  update::update(event, &mut app, &db)?;
-            }
-            if app.exit {
-                  break;
-            }
-            term.draw(&mut app)?;
+    term.exit()?;
 
-            fps_timer.timeout();
-      }
-      main_span.exit();
-
-
-      term.exit()?;
-
-      Ok(())
+    Ok(())
 }
-
-
