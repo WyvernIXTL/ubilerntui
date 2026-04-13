@@ -31,7 +31,7 @@ use tracing::{info, trace, trace_span};
 
 use colored::*;
 
-use license_fetcher::get_package_list_macro;
+use license_fetcher::read_package_list_from_out_dir;
 
 pub mod logging;
 use logging::start_tracing;
@@ -151,7 +151,7 @@ fn main() -> Result<()> {
             }
             if let Some(license_requested) = matches.get_one::<bool>("license") {
                 if *license_requested {
-                    let packages = get_package_list_macro!();
+                    let packages = read_package_list_from_out_dir!()?;
                     println!("{}", packages);
                     return Ok(());
                 }
