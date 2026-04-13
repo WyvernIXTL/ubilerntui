@@ -25,6 +25,7 @@ use regex::Regex;
 /// Uses [pdf_extract] crate to [extract](pdf_extract::extract_text_from_mem) PDF read on location of `path`.
 pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
     let bytes = read(path)?;
+    print!("{}", extract_text_from_mem(&bytes)?);
     Ok(extract_text_from_mem(&bytes)?)
 }
 
@@ -183,6 +184,276 @@ wrong answer 3 part 2
         ];
 
         let res = parse_pdf(test_raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_176() -> Result<()> {
+        let raw_string = "
+
+
+176.
+
+q part1
+q part2
+q part3
+
+
+ [176]
+
+1)  correct answer
+
+2)  wrong answer 1
+
+3)  wrong answer 2
+
+4)  wrong answer 3
+
+
+ Gesamtfragenkatalog
+
+        ";
+
+        let expected = vec![(
+            176usize,
+            "q part1 q part2 q part3".to_owned(),
+            "correct answer".to_owned(),
+            vec![
+                "wrong answer 1".to_owned(),
+                "wrong answer 2".to_owned(),
+                "wrong answer 3".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_177() -> Result<()> {
+        let raw_string = "
+
+
+177.
+
+q part1
+q part2
+q part3
+
+
+ [177]
+
+1)
+
+correct answer part1
+correct answer part2
+
+
+
+2)
+
+wrong answer 1 part 1
+wrong answer 1 part 2
+
+
+
+3)
+
+wrong answer 2 part 1
+wrong answer 2 part 2
+
+
+
+4)
+
+wrong answer 3 part 1
+wrong answer 3 part 2
+
+
+
+ 178.
+        ";
+
+        let expected = vec![(
+            177usize,
+            "q part1 q part2 q part3".to_owned(),
+            "correct answer part1 correct answer part2".to_owned(),
+            vec![
+                "wrong answer 1 part 1 wrong answer 1 part 2".to_owned(),
+                "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
+                "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_177_b() -> Result<()> {
+        let raw_string = "
+
+
+177.
+
+q part1
+q part2
+q part3
+
+
+ [177]
+
+1)
+
+correct answer part1
+correct answer part2
+
+
+
+2)
+
+wrong answer 1 part 1
+wrong answer 1 part 2
+
+
+
+3)
+
+wrong answer 2 part 1
+wrong answer 2 part 2
+
+
+
+4)
+
+wrong answer 3 part 1
+wrong answer 3 part 2
+
+
+Gesamtfragenkatalog
+        ";
+
+        let expected = vec![(
+            177usize,
+            "q part1 q part2 q part3".to_owned(),
+            "correct answer part1 correct answer part2".to_owned(),
+            vec![
+                "wrong answer 1 part 1 wrong answer 1 part 2".to_owned(),
+                "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
+                "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_177_c() -> Result<()> {
+        let raw_string = "
+
+
+177.
+
+q part1
+q part2
+q part3
+
+
+ [177]
+
+1)
+
+correct answer part1
+correct answer part2
+
+
+
+2)
+
+wrong answer 1 part 1
+wrong answer 1 part 2
+
+
+
+3)
+
+wrong answer 2 part 1
+wrong answer 2 part 2
+
+
+
+4)
+
+wrong answer 3 part 1
+wrong answer 3 part 2
+
+
+IV. 
+        ";
+
+        let expected = vec![(
+            177usize,
+            "q part1 q part2 q part3".to_owned(),
+            "correct answer part1 correct answer part2".to_owned(),
+            vec![
+                "wrong answer 1 part 1 wrong answer 1 part 2".to_owned(),
+                "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
+                "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_124() -> Result<()> {
+        let raw_string = "
+
+124.    question  [124]
+
+1)  correct answer
+
+2)  wrong answer 1
+
+3)  wrong answer 2 (A1 bis A4)
+
+4)  wrong answer 3
+
+
+
+VII. 
+
+        ";
+
+        let expected = vec![(
+            124usize,
+            "question".to_owned(),
+            "correct answer".to_owned(),
+            vec![
+                "wrong answer 1".to_owned(),
+                "wrong answer 2 (A1 bis A4)".to_owned(),
+                "wrong answer 3".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
 
         assert_eq!(res, expected);
 
