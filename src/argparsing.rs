@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-
-use clap::{Command, arg};
+use clap::{arg, Command};
 use std::env;
 
 use once_cell::sync::Lazy;
 
-
-static LONG_HELP: Lazy<String> = Lazy::new(|| format!("{} v{} (c) {} {}
+static LONG_HELP: Lazy<String> = Lazy::new(|| {
+    format!("{} v{} (c) {} {}
 
 Eine TUI, um für die UBI-Prüfung zu lernen.
 
@@ -35,35 +33,35 @@ Anleitung:
    ubilerntui
 4. Bestehen Sie die Prüfung :)
 ", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_AUTHORS"), env!("CARGO_PKG_LICENSE"))
-);
+});
 
 /// Returns structure for `clap` to parse cli arguments.
-/// 
+///
 /// This crate contains a single function returning `Command` struct from `clap`.
 /// It is used to parse the command line arguments.
-/// 
+///
 /// ```
 /// let commands = commands_and_flags();
 /// ```
 pub fn commands_and_flags() -> Command {
-      Command::new("ubilerntui")
-      .about("Eine TUI, um für die UBI-Prüfung zu lernen.")
-      .long_about(&*LONG_HELP)
-      .args([
+    Command::new("ubilerntui")
+        .about("Eine TUI, um für die UBI-Prüfung zu lernen.")
+        .long_about(&*LONG_HELP)
+        .args([
             arg!(--license "Prints license information."),
             arg!(--version "Prints version information."),
-      ])
-      .subcommands([
+        ])
+        .subcommands([
             Command::new("lade")
-                  .about("Lädt eine UBI-Gesamtfragenkatalog-PDF-Datei in die interne Datenbank.")
-                  .arg(arg!(<PFAD> "Pfad der PDF-Datei.")),
+                .about("Lädt eine UBI-Gesamtfragenkatalog-PDF-Datei in die interne Datenbank.")
+                .arg(arg!(<PFAD> "Pfad der PDF-Datei.")),
             Command::new("loesche")
-                  .about("Löscht alle Fragen oder den Fortschritt aus der Datenbank.")
-                  .subcommand_required(true)
-                  .arg_required_else_help(true)
-                  .subcommands([
-                        Command::new("fragen").about("Löscht alle Fragen aus der Datenbank"),
-                        Command::new("fortschritt").about("Löscht den Fortschritt aus der Datenbank.")
-                  ])
-      ])
+                .about("Löscht alle Fragen oder den Fortschritt aus der Datenbank.")
+                .subcommand_required(true)
+                .arg_required_else_help(true)
+                .subcommands([
+                    Command::new("fragen").about("Löscht alle Fragen aus der Datenbank"),
+                    Command::new("fortschritt").about("Löscht den Fortschritt aus der Datenbank."),
+                ]),
+        ])
 }

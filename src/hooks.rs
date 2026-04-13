@@ -14,58 +14,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-
 use std::panic;
 use std::sync::{
-      atomic::{AtomicBool, Ordering}, 
-      Arc
+    atomic::{AtomicBool, Ordering},
+    Arc,
 };
 
-use color_eyre::eyre::{
-      self,
-      Result
-};
+use color_eyre::eyre::{self, Result};
 
-use tracing::error; 
+use tracing::error;
 
 use crate::tui::partial_exit;
 
-
 /// Installs custom panic hooks which also handle terminal raw and alternative mode, when those are enabled.
-/// 
+///
 /// ```
 /// let entered_alternative_mode = Arc::new(AtomicBool::new(false));
 /// eyre_term_exit_hook(entered_alternative_mode.clone())?;
 /// ```
-/// 
-/// For this to work correctly `exit_alternative_mode` needs to be set to `true` 
+///
+/// For this to work correctly `exit_alternative_mode` needs to be set to `true`
 /// when alternative mode and raw mode are enabled for the terminal.
 pub fn eyre_term_exit_hook(exit_alternative_mode: Arc<AtomicBool>) -> Result<()> {
-      let hook_builder = color_eyre::config::HookBuilder::default();
-      let (panic_hook, eyre_hook) = hook_builder.into_hooks();
+    let hook_builder = color_eyre::config::HookBuilder::default();
+    let (panic_hook, eyre_hook) = hook_builder.into_hooks();
 
-      let panic_hook = panic_hook.into_panic_hook();
+    let panic_hook = panic_hook.into_panic_hook();
 
-      let exit_alternative_mode_info = exit_alternative_mode.clone();
-      panic::set_hook(Box::new(move |panic_info| {
-            error!(%panic_info);
-            if exit_alternative_mode_info.load(Ordering::Relaxed) {
-                  partial_exit().unwrap();
-            }
-            panic_hook(panic_info);
-      }));
+    let exit_alternative_mode_info = exit_alternative_mode.clone();
+    panic::set_hook(Box::new(move |panic_info| {
+        error!(%panic_info);
+        if exit_alternative_mode_info.load(Ordering::Relaxed) {
+            partial_exit().unwrap();
+        }
+        panic_hook(panic_info);
+    }));
 
-      // convert from a color_eyre EyreHook to a eyre ErrorHook
-      let eyre_hook = eyre_hook.into_eyre_hook();
-      let exit_alternative_mode_error = exit_alternative_mode.clone();
-      eyre::set_hook(Box::new(move |error| {
-            error!(%error);
-            if exit_alternative_mode_error.load(Ordering::Relaxed) {
-                  partial_exit().unwrap();
-            }
-            eyre_hook(error)
-      }))?;
+    // convert from a color_eyre EyreHook to a eyre ErrorHook
+    let eyre_hook = eyre_hook.into_eyre_hook();
+    let exit_alternative_mode_error = exit_alternative_mode.clone();
+    eyre::set_hook(Box::new(move |error| {
+        error!(%error);
+        if exit_alternative_mode_error.load(Ordering::Relaxed) {
+            partial_exit().unwrap();
+        }
+        eyre_hook(error)
+    }))?;
 
-      Ok(())
+    Ok(())
 }

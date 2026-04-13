@@ -14,76 +14,76 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-
-use tracing::{trace_span, trace};
+use tracing::{trace, trace_span};
 
 use color_eyre::eyre::Result;
 
-use crossterm::event::{self, KeyEvent, MouseEvent, Event};
+use crossterm::event::{self, Event, KeyEvent, MouseEvent};
 
 use std::{
-      sync::mpsc::{self, Receiver, Sender},
-      thread,
-      time::Duration
+    sync::mpsc::{self, Receiver, Sender},
+    thread,
+    time::Duration,
 };
-
 
 pub enum EventType {
     Key(KeyEvent),
     Mouse(MouseEvent),
-    Resize(u16, u16)
+    Resize(u16, u16),
 }
 
 /// On creation spawns thread capturing key strokes, mouse movements and resizes of window.
 /// Those are then accessable via [channel](Receiver<EventType>) saved in this struct.
-pub struct  InputEventHandler {
-      pub sender: Sender<EventType>, 
-      pub receiver: Receiver<EventType>
+pub struct InputEventHandler {
+    pub sender: Sender<EventType>,
+    pub receiver: Receiver<EventType>,
 }
 
 impl InputEventHandler {
-      /// Returns struct with channels. Spawns thread capturing key strokes, mouse movements and resizes of window.
-      pub fn new(fps: u64) -> Self {
-            let frametime = 1_000_000_000 / fps;
-            let (sender, receiver) = mpsc::channel::<EventType>();
+    /// Returns struct with channels. Spawns thread capturing key strokes, mouse movements and resizes of window.
+    pub fn new(fps: u64) -> Self {
+        let frametime = 1_000_000_000 / fps;
+        let (sender, receiver) = mpsc::channel::<EventType>();
 
-            {
-                  let sender = sender.clone();
+        {
+            let sender = sender.clone();
 
-                  thread::spawn(move || {
-                        let _trace_guard = trace_span!("Key, mouse and resize event polling loop.", frametime).entered();
-                        loop {
-                              if event::poll(Duration::from_nanos(frametime)).expect("Unable to poll for crossterm event.") {
-                                    match event::read().expect("Unable to read crossterm event.") {
-                                          Event::Resize(w, h) => {
-                                                sender.send(EventType::Resize(w, h))
-                                          },
-                                          Event::Key(key_event) => {
-                                                if key_event.kind == event::KeyEventKind::Press {
-                                                      sender.send(EventType::Key(key_event))
-                                                } else {
-                                                    Ok(())
-                                                }
-                                          },
-                                          Event::Mouse(mouse_event) => {
-                                                sender.send(EventType::Mouse(mouse_event))
-                                          },
-                                          unknown_event => {
-                                                trace!(?unknown_event, "Unknown event matched in even handler."); 
-                                                Ok(()) 
-                                          },
-                                    }.expect("Failed sending in event channel.");
-                              }
+            thread::spawn(move || {
+                let _trace_guard =
+                    trace_span!("Key, mouse and resize event polling loop.", frametime).entered();
+                loop {
+                    if event::poll(Duration::from_nanos(frametime))
+                        .expect("Unable to poll for crossterm event.")
+                    {
+                        match event::read().expect("Unable to read crossterm event.") {
+                            Event::Resize(w, h) => sender.send(EventType::Resize(w, h)),
+                            Event::Key(key_event) => {
+                                if key_event.kind == event::KeyEventKind::Press {
+                                    sender.send(EventType::Key(key_event))
+                                } else {
+                                    Ok(())
+                                }
+                            }
+                            Event::Mouse(mouse_event) => sender.send(EventType::Mouse(mouse_event)),
+                            unknown_event => {
+                                trace!(?unknown_event, "Unknown event matched in even handler.");
+                                Ok(())
+                            }
                         }
-                  });
-            }
+                        .expect("Failed sending in event channel.");
+                    }
+                }
+            });
+        }
 
-            Self { sender: sender, receiver: receiver }
-      }
+        Self {
+            sender: sender,
+            receiver: receiver,
+        }
+    }
 
-      /// Get next key stroke/mouse event/resize event from channel.
-      pub fn get(&mut self) -> Result<EventType> {
-            Ok(self.receiver.recv()?)
-      }
+    /// Get next key stroke/mouse event/resize event from channel.
+    pub fn get(&mut self) -> Result<EventType> {
+        Ok(self.receiver.recv()?)
+    }
 }
