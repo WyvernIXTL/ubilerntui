@@ -110,7 +110,7 @@ fn main() -> Result<()> {
                     "0 Fragen erfolgreich aus der PDF-Datei geladen.".yellow()
                 );
                 println!("{}", "Zu wenige Fragen wurden geladen!
-                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versuch haben zu laden.".yellow());
+                        Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versucht haben zu laden.".yellow());
             } else {
                 let res_msg =
                     format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
