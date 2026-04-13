@@ -25,7 +25,8 @@ use regex::Regex;
 /// Uses [pdf_extract] crate to [extract](pdf_extract::extract_text_from_mem) PDF read on location of `path`.
 pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
     let bytes = read(path)?;
-    print!("{}", extract_text_from_mem(&bytes)?);
+    // if you want to see the output for testing
+    // print!("{}", extract_text_from_mem(&bytes)?);
     Ok(extract_text_from_mem(&bytes)?)
 }
 
