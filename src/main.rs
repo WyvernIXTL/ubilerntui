@@ -107,13 +107,9 @@ fn main() -> Result<()> {
             if count == 0 {
                 println!("{}", "Zu wenige Fragen wurden geladen!
                         Bitte öffnen Sie auf github ein Issue mit einem Link zu dem Fragenkatalog, den Sie versucht haben zu laden.".yellow());
-            } else if count < 130 {
-                let res_msg =
-                    format!("{count} Fragen aus der PDF-Datei geladen. Bitte gleichen Sie ab, ob dies der Anzahl in Ihrem Fragenkatalog entspricht.").yellow();
-                println!("{}", res_msg);
             } else {
                 let res_msg =
-                    format!("{count} Fragen erfolgreich aus der PDF-Datei geladen.").green();
+                    format!("{count} Fragen erfolgreich aus der PDF-Datei geladen. Bitte gleichen Sie ab, ob dies der Anzahl in Ihrem Fragenkatalog entspricht.").green();
                 println!("{}", res_msg);
             }
         }
