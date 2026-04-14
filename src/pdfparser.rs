@@ -18,15 +18,15 @@ use std::fs::read;
 use std::path::PathBuf;
 
 use color_eyre::eyre::Result;
+use fancy_regex::Regex;
 use once_cell::sync::Lazy;
 use pdf_extract::extract_text_from_mem;
-use regex::Regex;
 
 /// Uses [pdf_extract] crate to [extract](pdf_extract::extract_text_from_mem) PDF read on location of `path`.
 pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
     let bytes = read(path)?;
     // if you want to see the output for testing
-    // print!("{}", extract_text_from_mem(&bytes)?);
+    // std::fs::write("test.txt", extract_text_from_mem(&bytes)?)?;
     Ok(extract_text_from_mem(&bytes)?)
 }
 
@@ -44,6 +44,7 @@ macro_rules! to_trimmed_string {
 
 fn extract_questions(reg: &Regex, s: &str) -> Vec<(usize, String, String, Vec<String>)> {
     reg.captures_iter(s)
+        .filter_map(|caps| caps.ok())
         .map(|caps| {
             let id = usize::from_str_radix(&caps["id"], 10).unwrap();
             (
@@ -75,7 +76,7 @@ pub fn parse_pdf(s: String) -> Result<Vec<(usize, String, String, Vec<String>)>>
     // SRC format: 1), 2), 3), 4) — [id] bracket position is inconsistent
     static REG_SRC: Lazy<Regex> = Lazy::new(|| {
         Regex::new(
-            r"(?ms)^\s?(?P<id>[0-9]{1,3})\.\s+(?P<question>.*?)1\)(?P<a>.*?)2\)(?P<b>.*?)3\)(?P<c>.*?)4\)(?P<d>.*?)\n$"
+            r"(?ms)(?:(?<=\n\s)|(?<=\n))(?P<id>[0-9]{1,3})\.\s+(?P<question>.+?)\[[0-9]{1,3}\]\s*?\n1\)(?P<a>.+?)\n2\)(?P<b>.+?)\n3\)(?P<c>.+?)\n4\)(?P<d>.+?)(?=Gesamtfragenkatalog|[0-9]{1,3}\.|(?:IX|IV|V?I{1,3})\.|\z)"
       ).unwrap()
     });
 
@@ -278,19 +279,45 @@ wrong answer 3 part 2
 
 
 
- 178.
+
+ 
+ 178.   
+  
+q 
+q
+
+  [178] 
+
+1)  a   
+
+2)  a   
+
+3)  a   
+
+4)  a   
+
+Gesamtfragenkatalog 
+
         ";
 
-        let expected = vec![(
-            177usize,
-            "q part1 q part2 q part3".to_owned(),
-            "correct answer part1 correct answer part2".to_owned(),
-            vec![
-                "wrong answer 1 part 1 wrong answer 1 part 2".to_owned(),
-                "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
-                "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
-            ],
-        )];
+        let expected = vec![
+            (
+                177usize,
+                "q part1 q part2 q part3".to_owned(),
+                "correct answer part1 correct answer part2".to_owned(),
+                vec![
+                    "wrong answer 1 part 1 wrong answer 1 part 2".to_owned(),
+                    "wrong answer 2 part 1 wrong answer 2 part 2".to_owned(),
+                    "wrong answer 3 part 1 wrong answer 3 part 2".to_owned(),
+                ],
+            ),
+            (
+                178usize,
+                "q q".to_owned(),
+                "a".to_owned(),
+                vec!["a".to_owned(), "a".to_owned(), "a".to_owned()],
+            ),
+        ];
 
         let res = parse_pdf(raw_string.to_owned())?;
 
@@ -451,6 +478,74 @@ VII.
                 "wrong answer 1".to_owned(),
                 "wrong answer 2 (A1 bis A4)".to_owned(),
                 "wrong answer 3".to_owned(),
+            ],
+        )];
+
+        let res = parse_pdf(raw_string.to_owned())?;
+
+        assert_eq!(res, expected);
+
+        Ok(())
+    }
+
+    #[test]
+    fn src_test_157() -> Result<()> {
+        let raw_string = "
+  
+157.   
+  
+q
+q
+
+  [157] 
+
+1) 
+  
+a. answer
+b. answer 
+c. answer 
+
+ 
+  
+
+2) 
+  
+a. answer 
+b. answer 
+c. answer 
+
+ 
+  
+
+3) 
+  
+a. answer 
+b. answer 
+c. answer 
+
+ 
+  
+
+4) 
+  
+a. answer 
+b. answer 
+c. answer  
+
+ 
+ 
+ 
+ 158.   
+        ";
+
+        let expected = vec![(
+            157,
+            "q q".to_owned(),
+            "a. answer b. answer c. answer".to_owned(),
+            vec![
+                "a. answer b. answer c. answer".to_owned(),
+                "a. answer b. answer c. answer".to_owned(),
+                "a. answer b. answer c. answer".to_owned(),
             ],
         )];
 
