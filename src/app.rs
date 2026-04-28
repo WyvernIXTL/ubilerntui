@@ -1,4 +1,3 @@
-use rand::seq::SliceRandom;
 /**
  * ubilerntui
  * Copyright (C) 2024 Adam McKellar
@@ -15,6 +14,7 @@ use rand::seq::SliceRandom;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+use rand::seq::SliceRandom;
 use rand::{rng, rngs::ThreadRng, RngCore};
 
 use ratatui::widgets::ListState;
