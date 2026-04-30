@@ -32,6 +32,12 @@ scoop bucket add stupid-bucket https://github.com/WyvernIXTL/stupid-bucket
 scoop install stupid-bucket/ubilerntui
 ```
 
+#### [Homebrew](https://brew.sh/) *(macos / linux)*
+
+```
+brew install wyvernixtl/tap2/ubilerntui
+```
+
 
 #### [Snap](https://snapcraft.io/) *(linux)*
 
@@ -58,7 +64,7 @@ Für:
 Auf der [Release Page](https://github.com/WyvernIXTL/ubilerntui/releases).
 
 
-## Benutzung
+## Anleitung
 ```
 Eine TUI, um für die UBI-Prüfung zu lernen.
 
