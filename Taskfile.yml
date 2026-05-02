@@ -1,0 +1,24 @@
+version: "3"
+
+tasks:
+  build:
+    desc: debug build with cranelift backend, see https://github.com/rust-lang/rustc_codegen_cranelift
+    aliases:
+      - b
+    env:
+      CARGO_PROFILE_DEV_CODEGEN_BACKEND: cranelift
+      CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER: lld-link.exe
+      RUSTFLAGS: "-Zthreads=8"
+    cmds:
+      - cargo +nightly build -Zcodegen-backend {{.CLI_ARGS}}
+
+  run:
+    desc: debug build and run with cranelift backend, see https://github.com/rust-lang/rustc_codegen_cranelift
+    aliases:
+      - r
+    env:
+      CARGO_PROFILE_DEV_CODEGEN_BACKEND: cranelift
+      CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER: lld-link.exe
+      RUSTFLAGS: "-Zthreads=8"
+    cmds:
+      - cargo +nightly run -Zcodegen-backend -- {{.CLI_ARGS}}
