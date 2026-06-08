@@ -869,9 +869,9 @@ dependencies = [
 
 [[package]]
 name = "license-fetcher"
-version = "0.10.0-rc.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8b9bb81e59b153c2f09ca6d141abb0bd6f52847114ccf1a1a8cc4bdc279971f"
+checksum = "5b78d298fb9844476f0577ba024d61e19dc25245593dd927c9e6455e1cab6264"
 dependencies = [
  "exn",
  "log",
