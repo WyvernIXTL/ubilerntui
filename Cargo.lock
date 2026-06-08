@@ -124,12 +124,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.102"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
-
-[[package]]
 name = "autocfg"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,16 +550,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error-stack"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe413319145d1063f080f27556fd30b1d70b01e2ba10c2a6e40d4be982ffc5d1"
-dependencies = [
- "anyhow",
- "rustc_version",
-]
-
-[[package]]
 name = "euclid"
 version = "0.20.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -573,6 +557,12 @@ checksum = "2bb7ef65b3777a325d1eeefefab5b6d4959da54747e33bd6258e789640f307ad"
 dependencies = [
  "num-traits",
 ]
+
+[[package]]
+name = "exn"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84c8eaf8836c22a841ee5362e227dd09e5908b52fa2a9bc786cf153c0f344b99"
 
 [[package]]
 name = "eyre"
@@ -879,16 +869,16 @@ dependencies = [
 
 [[package]]
 name = "license-fetcher"
-version = "0.9.3"
+version = "0.10.0-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7560ca5427d14eea7c4bb83832f1c0f7cac2bffa3eec4ff6300bb3889eee53b0"
+checksum = "e8b9bb81e59b153c2f09ca6d141abb0bd6f52847114ccf1a1a8cc4bdc279971f"
 dependencies = [
- "directories",
- "error-stack",
+ "exn",
  "log",
  "lz4_flex",
  "nanoserde",
  "regex-lite",
+ "textwrap",
 ]
 
 [[package]]

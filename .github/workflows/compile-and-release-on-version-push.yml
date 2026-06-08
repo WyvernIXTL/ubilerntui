@@ -8,7 +8,7 @@ on:
     types: [published]
 
 env:
-  LICENSE_FETCHER: production
+  LICENSE_FETCHER: FORCE
 
 jobs:
   compile-and-upload:
@@ -112,4 +112,3 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ./target/debian/ubilerntui-x64.deb
-      
