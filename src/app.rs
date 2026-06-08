@@ -59,7 +59,7 @@ impl App {
         Self {
             exit: false,
             item_list_state: ListState::default(),
-            question_answer: question_answer,
+            question_answer,
             total_progress,
             total_question_count,
             rng: rng(),
@@ -94,10 +94,10 @@ impl QuestionAnswer {
         right_answer: usize,
     ) -> Self {
         Self {
-            id: id,
+            id,
             question: question.to_string(),
             possible_answers: possible_answers.iter().map(|s| s.to_string()).collect(),
-            right_answer: right_answer,
+            right_answer,
             user_answer: None,
             count_correctly_answered: 0,
         }

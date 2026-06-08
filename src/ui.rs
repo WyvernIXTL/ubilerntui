@@ -137,9 +137,7 @@ fn render_question_progress(frame: &mut Frame, area: Rect, q: &QuestionAnswer) {
         fg_color = Color::Green;
     } else {
         progress = (q.count_correctly_answered + 1) as f64 * 0.25;
-        if q.count_correctly_answered == 2 {
-            fg_color = Color::Yellow;
-        } else if q.count_correctly_answered == 1 {
+        if q.count_correctly_answered == 2 || q.count_correctly_answered == 1 {
             fg_color = Color::Yellow;
         } else {
             fg_color = Color::Red;
@@ -177,8 +175,8 @@ fn render_selector_list(
         textwrap::WordSplitter::Hyphenation(Standard::any_from_reader(&mut curs).unwrap())
     });
 
-    let textwrap_options = textwrap::Options::new((area.width - 9).try_into().unwrap())
-        .word_splitter((*TEXTWRAP_DICT).clone());
+    let textwrap_options =
+        textwrap::Options::new((area.width - 9).into()).word_splitter((*TEXTWRAP_DICT).clone());
 
     macro_rules! wrap_text_count {
         ($line_end:literal $s:expr) => {{
@@ -265,7 +263,7 @@ fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: &mut Vec<&str>) {
     if text.len() == 1 {
         text.resize(3, "");
         text.swap(0, 1);
-    } else if text.len() == 0 {
+    } else if text.is_empty() {
         text.resize(2, "");
     }
 
@@ -274,7 +272,7 @@ fn render_bottom_help_bar(frame: &mut Frame, area: Rect, text: &mut Vec<&str>) {
 
     let mut constraints: Vec<Constraint> = Vec::new();
     for _i in 0..count {
-        constraints.push(constraint_single.clone());
+        constraints.push(constraint_single);
     }
 
     let chunks = Layout::default()

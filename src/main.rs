@@ -161,9 +161,8 @@ fn main() -> Result<()> {
                 commands.print_long_help()?;
             } else if db.no_open_questions()? {
                 println!(
-                    "{}\n{} {}.",
+                    "{}\nSie können diese nochmal lernen via {}.",
                     "Sie haben bereits alle Fragen gelernt!".green(),
-                    "Sie können diese nochmal lernen via",
                     "ubilerntui loesche fortschritt".yellow()
                 );
                 commands.print_help()?;
@@ -230,7 +229,7 @@ fn start_learn_tui(entered_alternative_mode: Arc<AtomicBool>, db: &DB) -> Result
     let mut fps_timer = fpslimiter::FpsTimer::new(FPS);
     loop {
         while let Ok(event) = event_handler.receiver.try_recv() {
-            update::update(event, &mut app, &db)?;
+            update::update(event, &mut app, db)?;
         }
         if app.exit {
             break;

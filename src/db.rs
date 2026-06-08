@@ -21,11 +21,11 @@ use crate::app::QuestionAnswer;
 use crate::fs::get_local_dir;
 
 const DB_NAME: &str = "ubilerndb.sqlite3";
-const TOTAL_COUNT_TRYS_PER_QUESTION: usize = 3;
+const TOTAL_COUNT_TRIES_PER_QUESTION: usize = 3;
 
 const SQL_CREATE_QUESTION_TABLE: &str = "CREATE TABLE IF NOT EXISTS questions (
       id                            INTEGER PRIMARY KEY,
-      question                      TEXT NOT NULL,     
+      question                      TEXT NOT NULL,
       answers_0                     TEXT NOT NULL,
       answers_1                     TEXT NOT NULL,
       answers_2                     TEXT NOT NULL,
@@ -64,7 +64,7 @@ impl DB {
         let db_path = get_local_dir(db_dir_name)?.join(DB_NAME);
         let db = Connection::open(db_path)?;
         db.execute(SQL_CREATE_QUESTION_TABLE, ())?;
-        Ok(Self { db: db })
+        Ok(Self { db })
     }
 
     /// Inserts question into database (table `question`).
@@ -79,7 +79,7 @@ impl DB {
         right_answer: S,
         false_answers: Vec<S>,
     ) -> Result<()> {
-        debug_assert!(false_answers.len() == TOTAL_COUNT_TRYS_PER_QUESTION);
+        debug_assert!(false_answers.len() == TOTAL_COUNT_TRIES_PER_QUESTION);
 
         self.db.execute(
                   "INSERT INTO questions (id, question, answers_0, answers_1, answers_2, answers_3, correctly_answered)
@@ -137,7 +137,7 @@ impl DB {
     /// db.update_count_correct_answers(1, 2)?;
     /// ```
     pub fn update_count_correct_answers(&self, id: usize, new_count: usize) -> Result<()> {
-        debug_assert!(new_count <= TOTAL_COUNT_TRYS_PER_QUESTION);
+        debug_assert!(new_count <= TOTAL_COUNT_TRIES_PER_QUESTION);
         self.db.execute(
             "UPDATE questions
                   SET correctly_answered = ?1
@@ -192,7 +192,7 @@ impl DB {
             |f| f.get(0),
         )?;
 
-        Ok(row_count * TOTAL_COUNT_TRYS_PER_QUESTION)
+        Ok(row_count * TOTAL_COUNT_TRIES_PER_QUESTION)
     }
 
     /// Checks if `questions` table has row entries.
@@ -278,7 +278,7 @@ mod tests {
         fn new_in_memory() -> Result<Self> {
             let db = Connection::open_in_memory()?;
             db.execute(SQL_CREATE_QUESTION_TABLE, ())?;
-            Ok(Self { db: db })
+            Ok(Self { db })
         }
     }
 
@@ -348,7 +348,7 @@ mod tests {
 
         assert_eq!(
             db.get_total_question_count()?,
-            TOTAL_COUNT_TRYS_PER_QUESTION * 2
+            TOTAL_COUNT_TRIES_PER_QUESTION * 2
         );
 
         Ok(())

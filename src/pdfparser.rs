@@ -28,7 +28,7 @@ pub fn read_pdf_to_string(path: PathBuf) -> Result<String> {
     Ok(extract_text_from_mem(&bytes)?)
 }
 
-/// Trims, replaces bad line breaks and multiple spaces withing string.
+/// Trims, replaces bad line breaks and multiple spaces within string.
 macro_rules! to_trimmed_string {
     ($e:expr) => {{
         let s = ($e).trim();
@@ -44,7 +44,7 @@ fn extract_questions(reg: &Regex, s: &str) -> Vec<(usize, String, String, Vec<St
     reg.captures_iter(s)
         .filter_map(|caps| caps.ok())
         .map(|caps| {
-            let id = usize::from_str_radix(&caps["id"], 10).unwrap();
+            let id: usize = caps["id"].parse().unwrap();
             (
                 id,
                 to_trimmed_string!(&caps["question"]),
@@ -278,23 +278,23 @@ wrong answer 3 part 2
 
 
 
- 
- 178.   
-  
-q 
+
+ 178.
+
+q
 q
 
-  [178] 
+  [178]
 
-1)  a   
+1)  a
 
-2)  a   
+2)  a
 
-3)  a   
+3)  a
 
-4)  a   
+4)  a
 
-Gesamtfragenkatalog 
+Gesamtfragenkatalog
 
         ";
 
@@ -427,7 +427,7 @@ wrong answer 3 part 1
 wrong answer 3 part 2
 
 
-IV. 
+IV.
         ";
 
         let expected = vec![(
@@ -464,7 +464,7 @@ IV.
 
 
 
-VII. 
+VII.
 
         ";
 
@@ -489,51 +489,51 @@ VII.
     #[test]
     fn src_test_157() -> Result<()> {
         let raw_string = "
-  
-157.   
-  
+
+157.
+
 q
 q
 
-  [157] 
+  [157]
 
-1) 
-  
+1)
+
 a. answer
-b. answer 
-c. answer 
+b. answer
+c. answer
 
- 
-  
 
-2) 
-  
-a. answer 
-b. answer 
-c. answer 
 
- 
-  
 
-3) 
-  
-a. answer 
-b. answer 
-c. answer 
+2)
 
- 
-  
+a. answer
+b. answer
+c. answer
 
-4) 
-  
-a. answer 
-b. answer 
-c. answer  
 
- 
- 
- 
- 158.   
+
+
+3)
+
+a. answer
+b. answer
+c. answer
+
+
+
+
+4)
+
+a. answer
+b. answer
+c. answer
+
+
+
+
+ 158.
         ";
 
         let expected = vec![(

@@ -77,8 +77,8 @@ impl InputEventHandler {
         }
 
         Self {
-            sender: sender,
-            receiver: receiver,
+            sender,
+            receiver,
         }
     }
 
